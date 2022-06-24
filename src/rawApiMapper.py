@@ -7,13 +7,19 @@ import json
 try:
     from exceptions.ClientErrors import ClientError
     from exceptions.GenericErrors import NotExpectedError
+    from exceptions.MessageErrors import MessageNotSentError, AmbigousFileError
+
     from parseModes import *
     from Keyboards import *
+    from Message import *
 except ImportError:
     from .exceptions.ClientErrors import ClientError
     from .exceptions.GenericErrors import NotExpectedError
+    from .exceptions.MessageErrors import MessageNotSentError, AmbigousFileError
+
     from .parseModes import *
     from .Keyboards import *
+    from .Message import *
 
 
 def fetcher(*args, **kwargs) -> requests.Response:
@@ -41,13 +47,71 @@ class RawApiMapper:
             return response.json()
         raise NotExpectedError("Server response is empty or invalid!")
 
-    def sendText(self, chat_id: str, text: str="", reply_message_id: str="", forward_chat_id: str="", forward_message_id: str="", inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup(), format: Formatting=Formatting, parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default) -> dict[str, str]:
+    def sendText(self, chat_id: str, text: str="", reply_message_id: str="", forward_chat_id: str="", forward_message_id: str="", inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup(), formatting: Formatting=Formatting, parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default()) -> dict[str, str]:
         route = "/messages/sendText?"
-        query = f"token={self.token}&chatId={chat_id}&text={text}&replyMsgId={reply_message_id}&forwardChatId={forward_chat_id}&forwardMsgId={forward_message_id}&inlineKeyboardMarkup={inline_keyboard_markup.getButtonsAsString()}&format={format.content}&parseMode={parse_mode}"
-        print(query)
+        query = f"token={self.token}&chatId={chat_id}"
+        if text:
+            query += f"&text={text}"
+        if reply_message_id:
+            query += f"&replyMsgId={reply_message_id}"
+        if forward_chat_id:
+            query += f"&forwardChatId={forward_chat_id}"
+        if forward_message_id:
+            query += f"&forwardMsgId={forward_message_id}"
+        if inline_keyboard_markup.getButtonsAsString():
+            query += f"&inlineKeyboardMarkup={inline_keyboard_markup.getButtonsAsString()}"
+        if formatting.content:
+            query += f"&format={formatting.content}"
+        if parse_mode:
+            query += f"&parseMode={parse_mode.content}"
+        response: requests.Response = requests.get(self.endpoint + route + query)
+        if response.status_code in range(200, 299):
+            response_dict: dict = response.json()
+            if response_dict['ok']:
+                return Message(response_dict)
+            else:
+                raise MessageNotSentError(response_dict['description'])
+        raise MessageNotSentError
+
+
+    def sendFile(self, chat_id: str, file: typing.Union[str, bytes] , file_id: str="", caption: str="", reply_message_id: str="", forward_chat_id: str="", forward_message_id: str="", inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup(), formatting: Formatting=Formatting, parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default()) -> dict[str, str]:
+        route = "/messages/sendFile?"
+        query = f"token={self.token}&chatId={chat_id}"
+        response: typing.Union[requests.Response, None] = None
+        if file_id and file:
+            raise AmbigousFileError
+        if caption:
+            query += f"&caption={caption}"
+        if reply_message_id:
+            query += f"&replyMsgId={reply_message_id}"
+        if forward_chat_id:
+            query += f"&forwardChatId={forward_chat_id}"
+        if forward_message_id:
+            query += f"&forwardMsgId={forward_message_id}"
+        if inline_keyboard_markup.getButtonsAsString():
+            query += f"&inlineKeyboardMarkup={inline_keyboard_markup.getButtonsAsString()}"
+        if formatting.content:
+            query += f"&format={formatting.content}"
+        if parse_mode:
+            query += f"&parseMode={parse_mode.content}"
+        if file_id:
+            query += f"&fileId={file_id}"
+            response = requests.get(self.endpoint + route + query)
+        elif isinstance(file, bytes):
+            
+        if response.status_code in range(200, 299):
+            response_dict: dict = response.json()
+            if response_dict['ok']:
+                return Message(response_dict)
+            else:
+                raise MessageNotSentError(response_dict['description'])
+        raise MessageNotSentError
+
 
 
 if __name__ == "__main__":
     api_mapper = RawApiMapper("001.1917418351.1245850609:1004146438")
     # print(api_mapper.verifyToken())
-    api_mapper.sendText("normienette")
+    api_mapper.sendText("@kamuridesu", "heloo gugulu")
+
+    # print(api_mapper.getSelfInfo())

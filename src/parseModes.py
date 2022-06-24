@@ -21,9 +21,9 @@ class Markdown(GenericMarkup):
     def __init__(self, content: str) -> None:
         super().__init__(content)
 
-    @property
+    @staticmethod
     def default():
-        return "MarkdownV2"
+        return Markdown("MarkdownV2")
 
 
 class HtmlMarkup(GenericMarkup):
@@ -33,3 +33,8 @@ class HtmlMarkup(GenericMarkup):
 
 class Formatting:
     content = ""
+
+
+if __name__ == "__main__":
+    md = Markdown.default()
+    print(md.content)
