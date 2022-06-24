@@ -2,12 +2,13 @@
 from aiohttp import ServerDisconnectedError
 import requests
 import typing
+import os
 import json
 
 try:
     from exceptions.ClientErrors import ClientError
     from exceptions.GenericErrors import NotExpectedError
-    from exceptions.MessageErrors import MessageNotSentError, AmbigousFileError
+    from exceptions.MessageErrors import *
 
     from parseModes import *
     from Keyboards import *
@@ -15,7 +16,7 @@ try:
 except ImportError:
     from .exceptions.ClientErrors import ClientError
     from .exceptions.GenericErrors import NotExpectedError
-    from .exceptions.MessageErrors import MessageNotSentError, AmbigousFileError
+    from .exceptions.MessageErrors import *
 
     from .parseModes import *
     from .Keyboards import *
@@ -74,7 +75,7 @@ class RawApiMapper:
         raise MessageNotSentError
 
 
-    def sendFile(self, chat_id: str, file: typing.Union[str, bytes] , file_id: str="", caption: str="", reply_message_id: str="", forward_chat_id: str="", forward_message_id: str="", inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup(), formatting: Formatting=Formatting, parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default()) -> dict[str, str]:
+    def sendFile(self, chat_id: str, file: typing.Union[str, bytes, None]=None, file_id: str="", caption: str="", reply_message_id: str="", forward_chat_id: str="", forward_message_id: str="", inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup(), formatting: Formatting=Formatting, parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default()) -> dict[str, str]:
         route = "/messages/sendFile?"
         query = f"token={self.token}&chatId={chat_id}"
         response: typing.Union[requests.Response, None] = None
@@ -97,12 +98,26 @@ class RawApiMapper:
         if file_id:
             query += f"&fileId={file_id}"
             response = requests.get(self.endpoint + route + query)
-        elif isinstance(file, bytes):
+        elif file:
+            content: typing.Union[dict[str, bytes], None] = None
+            if isinstance(file, bytes):
+                content = {'file': ('noname', file)}
+            elif isinstance(file, str):
+                if not os.path.isfile(file):
+                    raise FileNotFoundError
+                with open(file, "rb") as file_bytes:
+                    content = {'file': ('noname', file_bytes.read())}
+            if content is None:
+                raise FileTypeMismatchError
+            response = requests.post(self.endpoint + route + query, files=content)
+        
+        if response is None:
+            raise NotExpectedError("File cannot be uploaded! Cause unknown")
             
         if response.status_code in range(200, 299):
             response_dict: dict = response.json()
             if response_dict['ok']:
-                return Message(response_dict)
+                return response_dict
             else:
                 raise MessageNotSentError(response_dict['description'])
         raise MessageNotSentError
@@ -112,6 +127,7 @@ class RawApiMapper:
 if __name__ == "__main__":
     api_mapper = RawApiMapper("001.1917418351.1245850609:1004146438")
     # print(api_mapper.verifyToken())
-    api_mapper.sendText("@kamuridesu", "heloo gugulu")
+    # api_mapper.sendText("@kamuridesu", "heloo gugulu")
+    api_mapper.sendFile("@kamuridesu", file_id="0847P000fn3659v0PqH5NT62b5e5ef1ah", caption="repost")
 
     # print(api_mapper.getSelfInfo())
