@@ -81,7 +81,7 @@ class RawApiMapper:
 
     def sendText(self, chat_id: str, text: str="", reply_message_id: str="", forward_chat_id: str="", forward_message_id: str="", inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup(), formatting: Formatting=Formatting, parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default()) -> dict[str, str]:
         route = "/messages/sendText?"
-        query = f"token={self.token}&chatId={chat_id}"
+        query = f"token={self.token}&chatId={chat_id}&parseMode={parse_mode.content}"
         if text:
             query += f"&text={text}"
         if reply_message_id:
@@ -94,8 +94,6 @@ class RawApiMapper:
             query += f"&inlineKeyboardMarkup={inline_keyboard_markup.getButtonsAsString()}"
         if formatting.content:
             query += f"&format={formatting.content}"
-        if parse_mode:
-            query += f"&parseMode={parse_mode.content}"
         response: requests.Response = fetcher("get", self.endpoint + route + query)
         if response.status_code in range(200, 299):
             response_dict: dict = response.json()
@@ -108,7 +106,7 @@ class RawApiMapper:
 
     def sendFile(self, chat_id: str, file: typing.Union[str, bytes, None]=None, file_id: str="", caption: str="", reply_message_id: str="", forward_chat_id: str="", forward_message_id: str="", inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup(), formatting: Formatting=Formatting, parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default()) -> dict[str, str]:
         route = "/messages/sendFile?"
-        query = f"token={self.token}&chatId={chat_id}"
+        query = f"token={self.token}&chatId={chat_id}&parseMode={parse_mode.content}"
         response: typing.Union[requests.Response, None] = None
         if file_id and file:
             raise AmbigousFileError
@@ -124,8 +122,6 @@ class RawApiMapper:
             query += f"&inlineKeyboardMarkup={inline_keyboard_markup.getButtonsAsString()}"
         if formatting.content:
             query += f"&format={formatting.content}"
-        if parse_mode:
-            query += f"&parseMode={parse_mode.content}"
         
         response = self.uploadFile(route, query, file_id, file)
             
@@ -154,6 +150,24 @@ class RawApiMapper:
         
         response = self.uploadFile(route, query, file_id, file)
             
+        if response.status_code in range(200, 299):
+            response_dict: dict = response.json()
+            if response_dict['ok']:
+                return response_dict
+            else:
+                raise MessageNotSentError(response_dict['description'])
+        raise MessageNotSentError
+
+    def editMessage(self, chat_id: str, message_id: str, text: str, inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup, formatting: Formatting=Formatting, parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default()) -> dict[str, typing.Any]:
+        route = "/messages/editText?"
+        query = f"&token={self.token}&chatId={chat_id}&msgId={message_id}&text={text}&parseMode={parse_mode.content}"
+        if inline_keyboard_markup.getButtonsAsString():
+            query += f"&inlineKeyboardMarkup={inline_keyboard_markup.getButtonsAsString()}"
+        if formatting.content:
+            query += f"&format={formatting.content}"
+
+        response: requests.Response = fetcher("get", self.endpoint + route + query)
+
         if response.status_code in range(200, 299):
             response_dict: dict = response.json()
             if response_dict['ok']:
