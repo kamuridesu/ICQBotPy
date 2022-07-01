@@ -1,10 +1,10 @@
 try:
     from rawApiMessagesMapperFunctions import *
     from exceptions.ClientErrors import InvalidTokenError
-    from Message import Message
+    from Message import SentMessage
 except ImportError:
     from .rawApiMessagesMapperFunctions import *
-    from .Message import Message
+    from .Message import SentMessage
     from .exceptions.ClientErrors import InvalidTokenError
 
 
@@ -18,10 +18,10 @@ class ICQBot:
     def info(self) -> dict[str, typing.Any]:
         return getBotInfo(self.token, self.endpoint)
 
-    def sendText(self, chat_id: str, text: str="", reply_message_id: str="", forward_chat_id: str="", forward_message_id: str="", inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup(), formatting: Formatting=Formatting, parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default()) -> Message:
-        return Message(sendText(self.token, self.endpoint, chat_id, text, reply_message_id, forward_chat_id, forward_message_id, inline_keyboard_markup, formatting, parse_mode), self.token, self.endpoint)
+    def sendText(self, chat_id: str, text: str="", reply_message_id: str="", forward_chat_id: str="", forward_message_id: str="", inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup(), formatting: Formatting=Formatting, parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default()) -> SentMessage:
+        return SentMessage(sendText(self.token, self.endpoint, chat_id, text, reply_message_id, forward_chat_id, forward_message_id, inline_keyboard_markup, formatting, parse_mode), self.token, self.endpoint)
 
-    def editMessage(self, chat_id: str, message_id: str, text: str, inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup, formatting: Formatting=Formatting, parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default()) -> Message:
+    def editMessage(self, chat_id: str, message_id: str, text: str, inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup(), formatting: Formatting=Formatting, parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default()) -> SentMessage:
         return editMessage(self.token, self.endpoint, chat_id, message_id, text, inline_keyboard_markup, formatting, parse_mode)
 
     def sendFile(self, chat_id: str, file: typing.Union[str, bytes, None]=None, file_id: str="", caption: str="", reply_message_id: str="", forward_chat_id: str="", forward_message_id: str="", inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup(), formatting: Formatting=Formatting, parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default()) -> dict[str, str]:
@@ -32,7 +32,7 @@ class ICQBot:
 
 
 if __name__ == "__main__":
-    
+    api_mapper = ICQBot("001.3476360037.4211413661:1004298326")
     message = api_mapper.sendText("@kamuridesu", "heloo gugulu")
     __import__("time").sleep(5)
     message.delete()
