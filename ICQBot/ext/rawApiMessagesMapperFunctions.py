@@ -75,8 +75,7 @@ def sendText(token: str, endpoint: str, chat_id: str, text: str="", reply_messag
                 "forward_message_id": forward_message_id,
             })
             return response_dict
-        else:
-            raise MessageNotSentError(response_dict['description'])
+        raise MessageNotSentError(response_dict['description'])
     raise MessageNotSentError
 
 
@@ -98,8 +97,7 @@ def editMessage(token: str, endpoint: str, chat_id: str, message_id: str, text: 
                 "text": text,
             })
             return response_dict
-        else:
-            raise MessageNotSentError(response_dict['description'])
+        raise MessageNotSentError(response_dict['description'])
     raise MessageNotSentError
 
 
@@ -150,8 +148,7 @@ def sendFile(token: str, endpoint: str, chat_id: str, file: typing.Union[str, by
         response_dict: dict = response.json()
         if response_dict['ok']:
             return response_dict
-        else:
-            raise MessageNotSentError(response_dict['description'])
+        raise MessageNotSentError(response_dict['description'])
     raise MessageNotSentError
 
 
@@ -176,9 +173,19 @@ def sendVoice(token: str, endpoint: str, chat_id: str, file: typing.Union[str, b
         response_dict: dict = response.json()
         if response_dict['ok']:
             return response_dict
-        else:
-            raise MessageNotSentError(response_dict['description'])
+        raise MessageNotSentError(response_dict['description'])
     raise MessageNotSentError
+
+
+def getFileInfo(toke: str, endpoint: str, file_id: str) -> dict[str, typing.Any]:
+    route = "/files/getInfo?"
+    query = f"token={token}&fileId={file_id}"
+
+    response: requests.Response = fetcher("get", endpoint + route + query)
+
+    if response.status_code in range(200, 299):
+        return response.json()
+    raise FileNotFoundError
 
 
 def deleteMessage(token: str, endpoint: str, chat_id: str, message_id: str) -> bool:
@@ -186,9 +193,8 @@ def deleteMessage(token: str, endpoint: str, chat_id: str, message_id: str) -> b
     query = f"token={token}&chatId={chat_id}&msgId={message_id}"
     response: requests.Response = fetcher("get", endpoint + route + query)
     if response.status_code in range(200, 209):
-        return response.json()['ok']
-    else:
-        raise MessageNotDeletedError
+        return response.json()['ok']    
+    raise MessageNotDeletedError
 
 
 # def callbackHandler(token: str, endpoint: str, query_id: str, text: str="", show_alert: bool=False, url=""):

@@ -23,6 +23,9 @@ class ICQBot:
     def sendFile(self, chat_id: str, file: typing.Union[str, bytes, None]=None, file_id: str="", caption: str="", reply_message_id: str="", forward_chat_id: str="", forward_message_id: str="", inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup(), formatting: Formatting=Formatting, parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default()) -> dict[str, str]:
         return sendFile(self.token, self.endpoint, chat_id, file, file_id, caption, reply_message_id, forward_chat_id, forward_message_id, inline_keyboard_markup, formatting, parse_mode)
 
+    def getFile(self, file_id) -> dict[str, typing.Any]:
+        return getFile(self.token, self.endpoint, file_id)
+
     def sendVoice(self, chat_id: str, file: typing.Union[str, bytes, None]=None, file_id: str="", reply_message_id: str="", forward_chat_id: str="", forward_message_id: str="", inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup()) -> dict[str, typing.Any]:
         return sendVoice(self.token, self.endpoint, chat_id, file, file_id, reply_message_id, forward_chat_id, forward_message_id, inline_keyboard_markup)
 
@@ -37,6 +40,7 @@ class ICQBot:
             members_dict.append({"sn": members})
         else: raise TypeError("Invalid user!")
         return removeMembers(self.token, self.endpoint, chat_id, members_dict)
+
 
 if __name__ == "__main__":
     ...
