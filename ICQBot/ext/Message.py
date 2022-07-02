@@ -1,7 +1,5 @@
 import typing
 
-from .rawApiMessagesMapperFunctions import deleteMessage
-
 try:
     from rawApiMessagesMapperFunctions import editMessage
     from parseModes import *
@@ -10,6 +8,7 @@ except ImportError:
     from .rawApiMessagesMapperFunctions import editMessage
     from .parseModes import *
     from .Keyboards import InlineKeyboardMarkup
+    from .payloads import *
 
 
 class SentMessage:
@@ -62,11 +61,12 @@ class SentMessage:
             d.update({"forward_message_id": self.forward_message_id})
         return d
 
+    @property
     def __str__(self) -> str:
-        return self.__dict__().__str__()
+        return self.__dict__.__str__()
 
     def __repr__(self) -> str:
-        return self.__dict__().__repr__()
+        return self.__dict__.__repr__()
 
 
 
@@ -79,6 +79,7 @@ class Author:
             self.last_name = last_name
         self.user_id = user_id
 
+    @property
     def __dict__(self) -> dict:
         d = {
             "first_name": self.first_name,
@@ -91,10 +92,40 @@ class Author:
         return d
 
     def __str__(self) -> str:
-        return self.__dict__().__str__()
+        return self.__dict__.__str__()
 
     def __repr__(self) -> str:
-        return self.__dict__().__repr__()
+        return self.__dict__.__repr__()
+
+
+class Payload:
+    def __init__(self, payload_data: dict[str, str], bot_instance=None) -> None:
+        self.type = payload_data['type']
+        self.payload: typing.Union[StickerPayload, FilePayload, None] = None
+        payload_data = payload_data['payload']
+        if self.type == "stricker":
+            self.payload = StickerPayload(payload_data["fileId"])
+        elif self.type == "file":
+            self.payload = FilePayload(payload_data['fileId'])
+        elif self.type == "mention":
+            self.payload = MentionPayload(payload_data["userId"], payload_data['firstName'])
+        elif self.type == "forward":
+            self.payload = ReceivedMessage(payload_data['message'], bot_instance)
+        elif self.type == "reply":
+            self.payload = ReceivedMessage(payload_data['message'], bot_instance)
+
+    @property
+    def __dict__(self) -> dict:
+        return {
+            "type": self.type,
+            "payload": self.payload.__dict__
+        }
+
+    def __str__(self) -> str:
+        return self.__dict__.__str__()
+    
+    def __repr__(self) -> str:
+        self.__str__()
 
 
 class ReceivedMessage:
@@ -106,18 +137,28 @@ class ReceivedMessage:
         if self.chat_type == "group":
             self.chat_title = message_data['payload']['chat']['title']
         author_info: str = message_data['payload']['from']
-        self.author: str = Author(author_info['firstName'], author_info['userId'], author_info['nick'])
+        nick = ""
+        if "nick" in author_info:
+            nick = author_info['nick']
+        self.author: str = Author(author_info['firstName'], author_info['userId'], nick)
         self.message_id: str = message_data['payload']['msgId']
-        self.text: str = message_data['payload']['text']
+        try:
+            self.text: str = message_data['payload']['text']
+        except KeyError:
+            self.text: str = ""
         self.timestamp: int = message_data['payload']['timestamp']
         try:
-            self.parts = message_data['payload']['parts']
+            self.payloads = []
+            for data in message_data['payload']['parts']:
+                payload = Payload(data)
+                self.payloads.append(payload)
         except Exception:
             pass
 
     def reply(self, text: str, forward_chat_id: str="", forward_message_id: str="", inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup(), formatting: Formatting=Formatting, parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default()) -> SentMessage:
         return self.bot_instance.sendText(self.chat_id, text, self.message_id, forward_chat_id, forward_message_id, inline_keyboard_markup, formatting, parse_mode)
 
+    @property
     def __dict__(self) -> dict:
         d: dict = {
             "message_id": self.message_id,
@@ -125,19 +166,17 @@ class ReceivedMessage:
             "text": self.text,
             "chat_type": self.chat_type,
             "chat_title": self.chat_title,
-            "author": self.author.__dict__(),
+            "author": self.author.__dict__,
             "message_id": self.message_id,
             "text": self.text,
             "timestamp": self.timestamp
         }
-        if hasattr(self, "parts"):
-            d.update({"parts": self.parts})
+        if hasattr(self, "payloads"):
+            d.update({"payloads": [x.__dict__ for x in self.payloads]})
         return d
 
     def __str__(self) -> str:
-        return self.__dict__().__str__()
+        return self.__dict__.__str__()
 
     def __repr__(self) -> str:
-        return self.__dict__().__repr__()
-
-
+        return self.__dict__.__repr__()

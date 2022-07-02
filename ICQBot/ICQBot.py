@@ -1,11 +1,7 @@
-try:
-    from rawApiMessagesMapperFunctions import *
-    from exceptions.ClientErrors import InvalidTokenError
-    from Message import SentMessage
-except ImportError:
-    from .ext.rawApiMessagesMapperFunctions import *
-    from .ext.Message import SentMessage
-    from .exceptions.ClientErrors import InvalidTokenError
+from .ext.rawApiMessagesMapperFunctions import *
+from .ext.rawApiChatMapperFunctions import *
+from .ext.Message import SentMessage
+from .exceptions.ClientErrors import InvalidTokenError
 
 
 class ICQBot:
@@ -30,6 +26,17 @@ class ICQBot:
     def sendVoice(self, chat_id: str, file: typing.Union[str, bytes, None]=None, file_id: str="", reply_message_id: str="", forward_chat_id: str="", forward_message_id: str="", inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup()) -> dict[str, typing.Any]:
         return sendVoice(self.token, self.endpoint, chat_id, file, file_id, reply_message_id, forward_chat_id, forward_message_id, inline_keyboard_markup)
 
+    def removeMembers(self, chat_id: str, members: typing.Union[list[typing.Union[str, int]], str, int]) -> bool:
+        members_dict: list[dict[str, typing.Union[str, int]]] = []
+        if isinstance(members, list):
+            for member in members:
+                members_dict.append({
+                    "sn": str(member)
+                })
+        elif isinstance(members, str):
+            members_dict.append({"sn": members})
+        else: raise TypeError("Invalid user!")
+        return removeMembers(self.token, self.endpoint, chat_id, members_dict)
 
 if __name__ == "__main__":
     ...

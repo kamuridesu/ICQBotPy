@@ -3,6 +3,7 @@ from aiohttp import ServerDisconnectedError
 import requests
 import typing
 import os
+import json
 
 try:
     from exceptions.ClientErrors import ClientError
@@ -35,8 +36,7 @@ def fetcher(get_post: str="get", *args, **kwargs) -> requests.Response:
 
 def removeMembers(token: str, endpoint: str, chat_id: str, members: list[dict]) -> bool:
     route = "/chats/members/delete?"
-    query = f"token={token}&chatId={chat_id}&members={members}"
-
+    query = f"token={token}&chatId={chat_id}&members={json.dumps(members)}"
     response: requests.Response = fetcher("get", endpoint + route + query)
 
     if response.status_code in range(200, 299):
