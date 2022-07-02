@@ -1,7 +1,6 @@
 import typing
 
 
-
 class FiltersRegistry:
     def __init__(self):
         self.filters: list[dict[tuple, typing.Callable]] = []

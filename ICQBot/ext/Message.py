@@ -1,6 +1,6 @@
 import typing
 
-from rawApiMessagesMapperFunctions import deleteMessage
+from .rawApiMessagesMapperFunctions import deleteMessage
 
 try:
     from rawApiMessagesMapperFunctions import editMessage

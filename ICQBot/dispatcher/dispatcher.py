@@ -8,10 +8,10 @@ try:
     import handlers
     from filters import FiltersRegistry
 except ImportError:
-    from .ICQBot import ICQBot
-    from .rawApiEventsMapperFunctions import getEvents
-    from .exceptions.DispatcherErrors import *
-    from .Message import ReceivedMessage
+    from ..ICQBot import ICQBot
+    from ..ext.rawApiEventsMapperFunctions import getEvents
+    from ..exceptions.DispatcherErrors import *
+    from ..ext.Message import ReceivedMessage
     from . import handlers
     from .filters import FiltersRegistry
 
@@ -33,7 +33,7 @@ class Dispatcher:
                 last_event_type = response['events'][-1]['type']
                 if last_event_type == "newMessage":
                     rc = (ReceivedMessage(response['events'][-1], self._bot_instance))
-                    handlers.MessageHandler(self.filterRegistry, rc)
+                    handlers.messageHandler(self.filterRegistry, rc)
     
     def start_polling(self, timeout: int=20) -> None:
         if self._is_polling:
@@ -59,12 +59,4 @@ class Dispatcher:
 
 
 if __name__ == "__main__":
-    bot = ICQBot("001.3476360037.4211413661:1004298326")
-    dp = Dispatcher(bot)
-
-    @dp.message_handler(commands="/echo")
-    def test(message: ReceivedMessage):
-        print(message)
-        message.reply(''.join(message.text.split(' ')[1:]))
-
-    dp.start_polling()
+    ...

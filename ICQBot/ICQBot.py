@@ -3,8 +3,8 @@ try:
     from exceptions.ClientErrors import InvalidTokenError
     from Message import SentMessage
 except ImportError:
-    from .rawApiMessagesMapperFunctions import *
-    from .Message import SentMessage
+    from .ext.rawApiMessagesMapperFunctions import *
+    from .ext.Message import SentMessage
     from .exceptions.ClientErrors import InvalidTokenError
 
 
@@ -32,8 +32,4 @@ class ICQBot:
 
 
 if __name__ == "__main__":
-    api_mapper = ICQBot("001.3476360037.4211413661:1004298326")
-    message = api_mapper.sendText("@kamuridesu", "heloo gugulu")
-    __import__("time").sleep(5)
-    message.delete()
-    # api_mapper.sendFile("@kamuridesu", file_id="0847P000fn3659v0PqH5NT62b5e5ef1ah", caption="repost")
+    ...

@@ -12,9 +12,9 @@ try:
     from parseModes import *
     from Keyboards import *
 except ImportError:
-    from .exceptions.ClientErrors import ClientError
-    from .exceptions.GenericErrors import NotExpectedError
-    from .exceptions.MessageErrors import *
+    from ..exceptions.ClientErrors import ClientError
+    from ..exceptions.GenericErrors import NotExpectedError
+    from ..exceptions.MessageErrors import *
 
     from .parseModes import *
     from .Keyboards import *
