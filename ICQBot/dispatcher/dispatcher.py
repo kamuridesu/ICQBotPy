@@ -48,7 +48,7 @@ class Dispatcher:
             except KeyboardInterrupt:
                 self._stopPolling()
 
-    def message_handler(self, commands: typing.Union[str, list[str]]):
+    def message_handler(self, commands: typing.Union[str, list[str]]=""):
         def decorator(function: typing.Callable):
             handlers.MessageHandlersFactory(commands, function, self.filterRegistry).register()
             return function

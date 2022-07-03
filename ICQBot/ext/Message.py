@@ -103,7 +103,7 @@ class Payload:
         self.type = payload_data['type']
         self.payload: typing.Union[StickerPayload, FilePayload, None] = None
         payload_data = payload_data['payload']
-        if self.type == "stricker":
+        if self.type == "sticker":
             self.payload = StickerPayload(payload_data["fileId"])
         elif self.type == "file":
             self.payload = FilePayload(payload_data['fileId'])

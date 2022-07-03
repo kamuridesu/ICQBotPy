@@ -129,6 +129,8 @@ def sendFile(token: str, endpoint: str, chat_id: str, file: typing.Union[str, by
     response: typing.Union[requests.Response, None] = None
     if file_id and file:
         raise AmbigousFileError
+    if file_id == "" and file == None:
+        raise FileNotFoundError
     if caption:
         query += f"&caption={caption}"
     if reply_message_id:
@@ -177,7 +179,7 @@ def sendVoice(token: str, endpoint: str, chat_id: str, file: typing.Union[str, b
     raise MessageNotSentError
 
 
-def getFileInfo(toke: str, endpoint: str, file_id: str) -> dict[str, typing.Any]:
+def getFileInfo(token: str, endpoint: str, file_id: str) -> dict[str, typing.Any]:
     route = "/files/getInfo?"
     query = f"token={token}&fileId={file_id}"
 
