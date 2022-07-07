@@ -1,19 +1,11 @@
 import typing
 
-try:
-    from ICQBot import ICQBot
-    from rawApiEventsMapperFunctions import getEvents
-    from exceptions.DispatcherErrors import *
-    from Message import ReceivedMessage
-    import handlers
-    from filters import FiltersRegistry
-except ImportError:
-    from ..ICQBot import ICQBot
-    from ..ext.rawApiEventsMapperFunctions import getEvents
-    from ..exceptions.DispatcherErrors import *
-    from ..ext.Message import ReceivedMessage
-    from . import handlers
-    from .filters import FiltersRegistry
+from ..ICQBot import ICQBot
+from ..ext.rawApiEventsMapperFunctions import getEvents
+from ..exceptions.DispatcherErrors import *
+from ..ext.Message import ReceivedMessage
+from . import handlers
+from .filters import FiltersRegistry
 
 
 class Dispatcher:

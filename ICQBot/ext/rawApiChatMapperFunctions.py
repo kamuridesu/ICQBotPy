@@ -5,18 +5,11 @@ import typing
 import os
 import json
 
-try:
-    from exceptions.ClientErrors import ClientError
-    from exceptions.GenericErrors import NotExpectedError
-    from exceptions.GroupErrors import *
-    from parseModes import *
-    from Keyboards import *
-except ImportError:
-    from ..exceptions.ClientErrors import ClientError
-    from ..exceptions.GenericErrors import NotExpectedError
-    from ..exceptions.GroupErrors import *
-    from .parseModes import *
-    from .Keyboards import *
+from ..exceptions.ClientErrors import ClientError
+from ..exceptions.GenericErrors import NotExpectedError
+from ..exceptions.GroupErrors import *
+from .parseModes import *
+from .Keyboards import *
 
 
 def fetcher(get_post: str="get", *args, **kwargs) -> requests.Response:
@@ -39,7 +32,7 @@ def removeMembers(token: str, endpoint: str, chat_id: str, members: list[dict]) 
     query = f"token={token}&chatId={chat_id}&members={json.dumps(members)}"
     response: requests.Response = fetcher("get", endpoint + route + query)
 
-    if response.status_code in range(200, 299):
+    if response.status_code == 200:
         return response.json()['ok']
     raise CannotRemoveUsersError
 

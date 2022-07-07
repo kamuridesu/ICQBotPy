@@ -1,10 +1,7 @@
 import typing
-try:
-    from Message import ReceivedMessage
-    from filters import FiltersRegistry
-except ImportError:
-    from ..ext.Message import ReceivedMessage
-    from .filters import FiltersRegistry
+
+from ..ext.Message import ReceivedMessage
+from .filters import FiltersRegistry
 
 
 class MessageHandlersFactory:

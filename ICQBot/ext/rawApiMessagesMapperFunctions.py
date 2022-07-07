@@ -4,20 +4,12 @@ import requests
 import typing
 import os
 
-try:
-    from exceptions.ClientErrors import ClientError
-    from exceptions.GenericErrors import NotExpectedError
-    from exceptions.MessageErrors import *
+from ..exceptions.ClientErrors import ClientError
+from ..exceptions.GenericErrors import NotExpectedError
+from ..exceptions.MessageErrors import *
 
-    from parseModes import *
-    from Keyboards import *
-except ImportError:
-    from ..exceptions.ClientErrors import ClientError
-    from ..exceptions.GenericErrors import NotExpectedError
-    from ..exceptions.MessageErrors import *
-
-    from .parseModes import *
-    from .Keyboards import *
+from .parseModes import *
+from .Keyboards import *
 
 
 def fetcher(get_post: str="get", *args, **kwargs) -> requests.Response:
@@ -64,7 +56,7 @@ def sendText(token: str, endpoint: str, chat_id: str, text: str="", reply_messag
     if formatting.content:
         query += f"&format={formatting.content}"
     response: requests.Response = fetcher("get", endpoint + route + query)
-    if response.status_code in range(200, 299):
+    if response.status_code == 200:
         response_dict: dict = response.json()
         if response_dict['ok']:
             response_dict.update({
@@ -89,7 +81,7 @@ def editMessage(token: str, endpoint: str, chat_id: str, message_id: str, text: 
 
     response: requests.Response = fetcher("get", endpoint + route + query)
 
-    if response.status_code in range(200, 299):
+    if response.status_code == 200:
         response_dict: dict = response.json()
         if response_dict['ok']:
             response_dict.update({
@@ -146,7 +138,7 @@ def sendFile(token: str, endpoint: str, chat_id: str, file: typing.Union[str, by
     
     response = uploadFile(endpoint, route, query, file_id, file)
         
-    if response.status_code in range(200, 299):
+    if response.status_code == 200:
         response_dict: dict = response.json()
         if response_dict['ok']:
             return response_dict
@@ -171,7 +163,7 @@ def sendVoice(token: str, endpoint: str, chat_id: str, file: typing.Union[str, b
     
     response = uploadFile(endpoint, route, query, file_id, file)
         
-    if response.status_code in range(200, 299):
+    if response.status_code == 200:
         response_dict: dict = response.json()
         if response_dict['ok']:
             return response_dict
@@ -185,7 +177,7 @@ def getFileInfo(token: str, endpoint: str, file_id: str) -> dict[str, typing.Any
 
     response: requests.Response = fetcher("get", endpoint + route + query)
 
-    if response.status_code in range(200, 299):
+    if response.status_code == 200:
         return response.json()
     raise FileNotFoundError
 
@@ -194,7 +186,7 @@ def deleteMessage(token: str, endpoint: str, chat_id: str, message_id: str) -> b
     route = "/messages/deleteMessages?"
     query = f"token={token}&chatId={chat_id}&msgId={message_id}"
     response: requests.Response = fetcher("get", endpoint + route + query)
-    if response.status_code in range(200, 209):
+    if response.status_code == 200:
         return response.json()['ok']    
     raise MessageNotDeletedError
 

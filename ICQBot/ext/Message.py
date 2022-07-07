@@ -1,14 +1,9 @@
 import typing
 
-try:
-    from rawApiMessagesMapperFunctions import editMessage
-    from parseModes import *
-    from Keyboards import InlineKeyboardMarkup
-except ImportError:
-    from .rawApiMessagesMapperFunctions import editMessage
-    from .parseModes import *
-    from .Keyboards import InlineKeyboardMarkup
-    from .payloads import *
+from .rawApiMessagesMapperFunctions import editMessage
+from .parseModes import *
+from .Keyboards import InlineKeyboardMarkup
+from .payloads import *
 
 
 class SentMessage:
