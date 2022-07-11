@@ -13,5 +13,4 @@ setup(name="ICQBot",
       install_requires=[
         'requests'
       ]
-
 )
