@@ -9,6 +9,9 @@ from .filters import FiltersRegistry
 
 
 class Dispatcher:
+    """
+    Dispatcher to process and handles with events
+    """
     def __init__(self, bot_instance: ICQBot) -> None:
         if not isinstance(bot_instance, ICQBot): raise TypeError(f"Argument bot_instance must be Bot, not {type(bot_instance).__name__}!")
         self._bot_instance = bot_instance
@@ -27,8 +30,14 @@ class Dispatcher:
                 if last_event_type == "newMessage":
                     rc = (ReceivedMessage(response['events'][-1], self._bot_instance))
                     self.messageHandlers.handle(rc)
+                if last_event_type == "callbackQuery":
+                    print(response['events'][-1])
     
     def start_polling(self, timeout: int=20) -> None:
+        """
+        Start long-polling
+        :param timeout:
+        """
         if self._is_polling:
             raise AlreadyPollingError
 
@@ -42,6 +51,21 @@ class Dispatcher:
                 self._stopPolling()
 
     def message_handler(self, commands: typing.Union[str, list[str]]=""):
+        """
+        Decorator for message handler
+
+        Examples:
+
+        Simple commands handler:
+
+            @dp.message_handler(commands=['start', 'welcome', 'about'])
+
+            async def cmd_handler(message: types.Message):
+        
+
+        :param `commands`: list of commands
+        :return: decorated function
+        """
         def decorator(function: typing.Callable):
             self.messageHandlers.register(commands, function)
             return function

@@ -13,9 +13,23 @@ class ICQBot:
             raise InvalidTokenError
         
     def info(self) -> dict[str, typing.Any]:
+        """
+        :return dict with information about the bot
+        """
         return getBotInfo(self.token, self.endpoint)
 
     def sendText(self, chat_id: str, text: str="", reply_message_id: str="", forward_chat_id: str="", forward_message_id: str="", inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup(), formatting: Formatting=Formatting, parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default()) -> SentMessage:
+        """
+        Sends a text message
+        :param chat_id: the id of the chat
+        :param text: the content of the message
+        :param reply_message_id: the id of a message to be replyed
+        :param forward_chat_id: the if of the chat where the message can be forwarded
+        :param inline_keyboard_markup: keyboard markup to use with callbacks
+        :param formating: Formating of the message
+        :param parse_mode: Parsing mode (Markdown or HTML)
+        :return: SentMessage object with the data of the sent message
+        """
         return SentMessage(sendText(self.token, self.endpoint, chat_id, text, reply_message_id, forward_chat_id, forward_message_id, inline_keyboard_markup, formatting, parse_mode), self.token, self.endpoint)
 
     def editMessage(self, chat_id: str, message_id: str, text: str, inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup(), formatting: Formatting=Formatting, parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default()) -> SentMessage:
