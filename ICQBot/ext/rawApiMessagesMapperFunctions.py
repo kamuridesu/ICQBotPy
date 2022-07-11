@@ -1,30 +1,13 @@
-
-from aiohttp import ServerDisconnectedError
 import requests
 import typing
 import os
 
-from ..exceptions.ClientErrors import ClientError
 from ..exceptions.GenericErrors import NotExpectedError
 from ..exceptions.MessageErrors import *
 
 from .parseModes import *
 from .Keyboards import *
-
-
-def fetcher(get_post: str="get", *args, **kwargs) -> requests.Response:
-    response: typing.Union[requests.Response, None] = None
-    if get_post == "get":
-        response = requests.get(*args, **kwargs)
-    elif get_post == "post":
-        response = requests.post(*args, **kwargs)
-    else:
-        raise NotExpectedError
-    if response.status_code in range(500, 599):
-        raise ServerDisconnectedError
-    if response.status_code in range(400, 499):
-        raise ClientError
-    return response
+from .util import fetcher
 
 
 def getBotInfo(token: str, endpoint: str) -> dict[str, typing.Any]:

@@ -1,34 +1,8 @@
-from aiohttp import ServerDisconnectedError
 import requests
 import typing
-import os
 
-from ..exceptions.ClientErrors import ClientError
-from ..exceptions.GenericErrors import NotExpectedError
+from .util import fetcher
 
-
-def fetcher(get_post: str="get", *args, **kwargs) -> requests.Response:
-    """
-    Fetches the content of a url, receives same arguments as `requests.post` and `requests.get`
-
-    params:
-    - get_post:
-
-    returns:
-    - requests.Response: The content of the url
-    """
-    response: typing.Union[requests.Response, None] = None
-    if get_post == "get":
-        response = requests.get(*args, **kwargs)
-    elif get_post == "post":
-        response = requests.post(*args, **kwargs)
-    else:
-        raise NotExpectedError
-    if response.status_code in range(500, 599):
-        raise ServerDisconnectedError
-    if response.status_code in range(400, 499):
-        raise ClientError
-    return response
 
 
 def getEvents(token: str, endpoint: str, last_event_id: int=0, poll_time: int=20) -> dict[typing.Any, typing.Any]:
