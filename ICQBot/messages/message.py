@@ -120,7 +120,7 @@ class Payload:
         return self.__dict__.__str__()
     
     def __repr__(self) -> str:
-        self.__str__()
+        return self.__str__()
 
 
 class ReceivedMessage:
@@ -142,8 +142,8 @@ class ReceivedMessage:
         except KeyError:
             self.text: str = ""
         self.timestamp: int = message_data['payload']['timestamp']
+        self.payloads = []
         try:
-            self.payloads = []
             for data in message_data['payload']['parts']:
                 payload = Payload(data)
                 self.payloads.append(payload)
