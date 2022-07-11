@@ -49,6 +49,45 @@ class ICQBot:
             raise TypeError("Invalid user!")
         return removeMembers(self.token, self.endpoint, chat_id, members_dict)
 
+    def getChatInfo(self, chat_id: str) -> dict:
+        return getChatInfo(self.token, self.endpoint, chat_id)
+
+    def getChatAdmins(self, chat_id: str) -> list[dict]:
+        return getChatAdmins(self.token, self.endpoint, chat_id)
+    
+    def getChatMembers(self, chat_id: str) -> list[dict]:
+        return getChatMembers(self.token, self.endpoint, chat_id)
+
+    def getChatBlockedUsers(self, chat_id: str) -> list[dict]:
+        return getChatBlockedUsers(self.token, self.endpoint, chat_id)
+
+    def getPendingMembers(self, chat_id: str) -> list[dict]:
+        return getPendingMembers(self.token, self.endpoint, chat_id)
+
+    def blockChatUser(self, chat_id: str, user_id: str, delete_last_messages: bool=False) -> bool:
+        return getPendingMembers(self.token, self.endpoint, chat_id, user_id, delete_last_messages)
+    
+    def unblockChatUser(self, chat_id: str, user_id: str) -> bool:
+        return unblockChatUser(self.token, self.endpoint, chat_id, user_id)
+
+    def resolvePendingUsers(self, chat_id: str, approve: bool, user_id: str="", everyone: bool=False) -> bool:
+        return resolvePendingUsers(self.token, self.endpoint, chat_id, approve, user_id, everyone)
+    
+    def setGroupName(self, chat_id: str, new_name: str) -> bool:
+        return setGroupName(self.token, self.endpoint, chat_id, new_name)
+
+    def setGroupAbout(self, chat_id: str, about: str) -> bool:
+        return setGroupAbout(self.token, self.endpoint, chat_id, about)
+
+    def setGroupRules(self, chat_id: str, rules: str) -> bool:
+        return setGroupRules(self.token, self.endpoint, chat_id, rules)
+
+    def pinMessage(self, chat_id: str, message_id: str) -> bool:
+        return pinMessage(self.token, self.endpoint, chat_id, message_id)
+
+    def unpinMessage(self, chat_id: str, message_id: str) -> bool:
+        return unpinMessage(self.token, self.endpoint, chat_id, message_id)
+
 
 if __name__ == "__main__":
     ...
