@@ -4,7 +4,7 @@ from ..ICQBot import ICQBot
 from ..ext.rawApiEventsMapperFunctions import getEvents
 from ..exceptions.DispatcherErrors import *
 from ..ext.Message import ReceivedMessage
-from . import handlers
+from .handlers import MessageHandlers
 from .filters import FiltersRegistry
 
 
@@ -15,6 +15,7 @@ class Dispatcher:
         self._is_polling = False
         self._last_event_id = 0
         self.filterRegistry = FiltersRegistry()
+        self.messageHandlers = MessageHandlers(self.filterRegistry)
 
     def _pollingHandler(self, response: dict[typing.Any, typing.Any]):
         # print(response)
@@ -25,7 +26,7 @@ class Dispatcher:
                 last_event_type = response['events'][-1]['type']
                 if last_event_type == "newMessage":
                     rc = (ReceivedMessage(response['events'][-1], self._bot_instance))
-                    handlers.messageHandler(self.filterRegistry, rc)
+                    self.messageHandlers.handle(rc)
     
     def start_polling(self, timeout: int=20) -> None:
         if self._is_polling:
@@ -42,7 +43,7 @@ class Dispatcher:
 
     def message_handler(self, commands: typing.Union[str, list[str]]=""):
         def decorator(function: typing.Callable):
-            handlers.MessageHandlersFactory(commands, function, self.filterRegistry).register()
+            self.messageHandlers.register(commands, function)
             return function
         return decorator
 

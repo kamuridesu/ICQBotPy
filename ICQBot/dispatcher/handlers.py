@@ -4,27 +4,25 @@ from ..ext.Message import ReceivedMessage
 from .filters import FiltersRegistry
 
 
-class MessageHandlersFactory:
-    def __init__(self, message_filter: typing.Union[str, list[str]], function: typing.Callable, filtersRegister: FiltersRegistry) -> None:
-        # self.bot_instance = bot_instance
-        self.function_to_be_wrapped = function
-        self.message_filter = []
-        if isinstance(message_filter, list):
-            self.message_filter = message_filter
-        else:
-            self.message_filter.append(message_filter)
-        self.filter_registry_instance = filtersRegister
 
-    def register(self):
-        self.filter_registry_instance.register(tuple(self.message_filter), self.function_to_be_wrapped)
+class MessageHandlers:
+    def __init__(self, filtersRegister: FiltersRegistry) -> None:
+        self.filtersRegister = filtersRegister
 
+    def register(self, message_filters: typing.Union[str, list[str]], function: typing.Callable) -> None:
+        filters: list[str] = []
+        if isinstance(message_filters, list):
+            filters = (message_filters)
+        elif isinstance(message_filters, str):
+            filters.append(message_filters)
+        return self.filtersRegister.register(tuple(filters), function)
 
-def messageHandler(filtersRegister: FiltersRegistry, message: ReceivedMessage):
-    for _filter in filtersRegister.filters:
-        for filters, function in _filter.items():
-            for f in filters:
-                if message.text.startswith(f):
-                    return function(message)
+    def handle(self, message: ReceivedMessage):
+        for _filter in self.filtersRegister.filters:
+            for filters, function in _filter.items():
+                for f in filters:
+                    if message.text.startswith(f):
+                        return function(message)
 
 
 if __name__ == "__main__":

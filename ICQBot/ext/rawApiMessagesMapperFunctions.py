@@ -106,7 +106,7 @@ def uploadFile(endpoint: str, route: str, query: str, file_id: typing.Union[str,
             if not os.path.isfile(file):
                 raise FileNotFoundError
             with open(file, "rb") as file_bytes:
-                content = {'file': ('noname', file_bytes.read())}
+                content = {'file': (os.path.basename(file), file_bytes.read())}
         if content is None:
             raise FileTypeMismatchError
         response = fetcher("post", endpoint + route + query, files=content)
@@ -147,7 +147,7 @@ def sendFile(token: str, endpoint: str, chat_id: str, file: typing.Union[str, by
 
 
 def sendVoice(token: str, endpoint: str, chat_id: str, file: typing.Union[str, bytes, None]=None, file_id: str="", reply_message_id: str="", forward_chat_id: str="", forward_message_id: str="", inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup()) -> dict[str, typing.Any]:
-    route = "/messages/sendFile?"
+    route = "/messages/sendVoice?"
     query = f"token={token}&chatId={chat_id}"
     response: typing.Union[requests.Response, None] = None
     if file_id and file:

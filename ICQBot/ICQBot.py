@@ -45,7 +45,8 @@ class ICQBot:
                 })
         elif isinstance(members, str):
             members_dict.append({"sn": members})
-        else: raise TypeError("Invalid user!")
+        else:
+            raise TypeError("Invalid user!")
         return removeMembers(self.token, self.endpoint, chat_id, members_dict)
 
 
