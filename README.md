@@ -2,9 +2,9 @@
 An actually working ICQ bot framework
 
 - [Purpose](https://github.com/kamuridesu/ICQBotPy#purpose)
-- [Getting Started](https://github.com/kamuridesu/ICQBotPy/edit/main/README.md#getting-started)
-	- [Installation](https://github.com/kamuridesu/ICQBotPy/edit/main/README.md#installation)
-	- [Example](https://github.com/kamuridesu/ICQBotPy/edit/main/README.md#example)
+- [Getting Started](https://github.com/kamuridesu/ICQBotPy#getting-started)
+	- [Installation](https://github.com/kamuridesu/ICQBotPy/README.md#installation)
+	- [Example](https://github.com/kamuridesu/ICQBotPy/README.md#example)
 - [Current State](https://github.com/kamuridesu/ICQBotPy#current-state)
 - [TODO](https://github.com/kamuridesu/ICQBotPy#todo)
 
