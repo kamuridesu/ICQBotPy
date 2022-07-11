@@ -101,7 +101,7 @@ class Payload:
         if self.type == "sticker":
             self.payload = StickerPayload(payload_data["fileId"])
         elif self.type == "file":
-            self.payload = FilePayload(payload_data['fileId'])
+            self.payload = FilePayload(payload_data['fileId'], payload_data['type'])
         elif self.type == "mention":
             self.payload = MentionPayload(payload_data["userId"], payload_data['firstName'])
         elif self.type == "forward":

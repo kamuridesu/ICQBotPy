@@ -3,6 +3,7 @@ from dataclasses import dataclass
 @dataclass
 class FilePayload:
     file_id: str
+    type: str
 
 
 @dataclass
