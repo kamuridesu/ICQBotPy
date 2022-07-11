@@ -3,9 +3,9 @@ import requests
 import json
 
 from ..exceptions.GroupErrors import *
-from .parseModes import *
-from .Keyboards import *
-from .util import fetcher
+from ..ext.parseModes import *
+from ..ext.Keyboards import *
+from ..ext.util import fetcher
 
 
 

@@ -1,7 +1,7 @@
 import requests
 import typing
 
-from .util import fetcher
+from ..ext.util import fetcher
 
 
 

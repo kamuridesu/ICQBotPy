@@ -1,9 +1,9 @@
 import typing
 
 from ..ICQBot import ICQBot
-from ..ext.rawApiEventsMapperFunctions import getEvents
+from ..mapper.EventsMapper import getEvents
 from ..exceptions.DispatcherErrors import *
-from ..ext.Message import ReceivedMessage
+from ..messages.message import ReceivedMessage
 from .handlers import MessageHandlers
 from .filters import FiltersRegistry
 

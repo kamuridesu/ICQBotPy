@@ -1,8 +1,8 @@
 import typing
 
-from .rawApiMessagesMapperFunctions import editMessage
-from .parseModes import *
-from .Keyboards import InlineKeyboardMarkup
+from ..mapper.MessagesMapper import deleteMessage, editMessage
+from ..ext.parseModes import *
+from ..ext.Keyboards import InlineKeyboardMarkup
 from .payloads import *
 
 

@@ -1,7 +1,7 @@
 import requests
-from .ext.rawApiMessagesMapperFunctions import *
-from .ext.rawApiChatMapperFunctions import *
-from .ext.Message import SentMessage
+from .mapper.MessagesMapper import *
+from .mapper.ChatMapper import *
+from .messages.message import SentMessage
 from .exceptions.ClientErrors import InvalidTokenError
 
 

@@ -1,6 +1,6 @@
 import typing
 
-from ..ext.Message import ReceivedMessage
+from ..messages.message import ReceivedMessage
 from .filters import FiltersRegistry
 
 
