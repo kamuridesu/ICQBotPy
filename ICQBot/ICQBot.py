@@ -30,7 +30,7 @@ class ICQBot:
         :param parse_mode: Parsing mode (Markdown or HTML)
         :return: SentMessage object with the data of the sent message
         """
-        return SentMessage(sendText(self.token, self.endpoint, chat_id, text, reply_message_id, forward_chat_id, forward_message_id, inline_keyboard_markup, formatting, parse_mode), self.token, self.endpoint)
+        return SentMessage(sendText(self.token, self.endpoint, chat_id, text, reply_message_id, forward_chat_id, forward_message_id, inline_keyboard_markup, formatting, parse_mode), self)
 
     def editMessage(self, chat_id: str, message_id: str, text: str, inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup(), formatting: Formatting=Formatting, parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default()) -> SentMessage:
         return editMessage(self.token, self.endpoint, chat_id, message_id, text, inline_keyboard_markup, formatting, parse_mode)

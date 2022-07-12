@@ -1,6 +1,22 @@
 import json
 import typing
 
+
+class Button:
+    def __init__(self, *kwargs):
+        self.data = kwargs
+    
+    def __str__(self):
+        return self.data.__str__()
+
+    @property
+    def __dict__(self):
+        return self.data
+    
+    def __repr__(self) -> str:
+        return self.__str__()
+
+
 class InlineKeyboardMarkup:
     """
     Inline Keyboard Markup
@@ -8,9 +24,9 @@ class InlineKeyboardMarkup:
     Supports Rows and Columns
     """
     def __init__(self) -> None:
-        self.components: list[list[dict[str, typing.Any]]] = [[]]
+        self.components: list[list[Button]] = [[]]
 
-    def addButton(self, button_content: dict[str, typing.Any], row=0) -> None:
+    def addButton(self, button_content: Button, row=0) -> None:
         """
         Adds a button to the grid
         :param button_content: a dict containing the button content (like: {"text": "Hello world", "callbackData": "id_1"})
@@ -37,7 +53,7 @@ class InlineKeyboardMarkup:
             print()
 
     @property
-    def buttons(self) -> list[dict[str, typing.Any]]:
+    def buttons(self) -> list[Button]:
         """
         Get all the buttons
         """

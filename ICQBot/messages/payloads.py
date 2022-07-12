@@ -1,7 +1,8 @@
 from dataclasses import dataclass
+from ..ext.util import CustomDict
 
 @dataclass
-class FilePayload:
+class FilePayload(CustomDict):
     file_id: str
     type: str
 
@@ -17,7 +18,7 @@ class VoicePayload(FilePayload):
 
 
 @dataclass
-class MentionPayload:
+class MentionPayload(CustomDict):
     user_id: str
     first_name: str
     last_name: str = ""

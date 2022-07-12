@@ -1,14 +1,14 @@
 from .message import ReceivedMessage
 from .message import Author
-import typing
+from ..ext.util import CustomDict
 
 
-class Callback:
-    def __init__(self, data: dict) -> None:
-        self.payload = data['payload']
-        if "from" in self.payload:
-            self.author = Author(self.payload['from'])
-        self.message_data = ReceivedMessage(data['message'])
-        self.query_id = data['queryId']
-
-        
+class Callback(CustomDict):
+    def __init__(self, data: dict, bot_instance) -> None:
+        self.author = Author(data['from'])
+        self.message_data: ReceivedMessage = ReceivedMessage(data['message'], bot_instance)
+        self.query_id: str = data['queryId']
+        for attr in data:
+            if not hasattr(self, attr):
+                if attr not in ["message", "from", "queryId"]:
+                    self.__setattr__(attr, data[attr])

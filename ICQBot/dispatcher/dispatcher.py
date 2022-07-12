@@ -4,6 +4,7 @@ from ..ICQBot import ICQBot
 from ..mapper.EventsMapper import getEvents
 from ..exceptions.DispatcherErrors import *
 from ..messages.message import ReceivedMessage
+from ..messages.callback import Callback
 from .handlers import MessageHandlers
 from .filters import FiltersRegistry
 
@@ -28,10 +29,11 @@ class Dispatcher:
                 self._last_event_id = response['events'][-1]['eventId']
                 last_event_type = response['events'][-1]['type']
                 if last_event_type == "newMessage":
-                    rc = (ReceivedMessage(response['events'][-1], self._bot_instance))
+                    rc = (ReceivedMessage(response['events'][-1]['payload'], self._bot_instance))
                     self.messageHandlers.handle(rc)
                 if last_event_type == "callbackQuery":
-                    print(response['events'][-1])
+                    cb = Callback(response['events'][-1]['payload'], self._bot_instance)
+                    print(cb)
     
     def start_polling(self, timeout: int=20) -> None:
         """
