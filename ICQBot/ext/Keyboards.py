@@ -47,8 +47,9 @@ class InlineKeyboardMarkup:
         """
         Dumps buttons to string
         """
-        if self.buttons:
-            return json.dumps(self.buttons)
+        if self.buttons[0]:
+            _json = json.dumps(self.buttons)
+            return _json
         return ""
 
 

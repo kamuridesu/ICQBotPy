@@ -26,8 +26,7 @@ def verifyToken(token: str, endpoint: str) -> bool:
 def sendText(token: str, endpoint: str, chat_id: str, text: str="", reply_message_id: str="", forward_chat_id: str="", forward_message_id: str="", inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup(), formatting: Formatting=Formatting, parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default()) -> dict[str, str]:
     route = "/messages/sendText?"
     query = f"token={token}&chatId={chat_id}&parseMode={parse_mode.content}"
-    if text:
-        query += f"&text={text}"
+    query += f"&text={text}"
     if reply_message_id:
         query += f"&replyMsgId={reply_message_id}"
     if forward_chat_id:
