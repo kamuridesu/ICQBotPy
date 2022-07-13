@@ -17,6 +17,7 @@ jobs:
         --user
     - name: Build a binary wheel and a source tarball
       run: >-
+        cd ..
         python -m
         build
         --sdist
