@@ -12,7 +12,7 @@ An actually working ICQ bot framework
 ## Purpose
 I made this bot framework for personal use, since the original ICQ bot framework is a mess and almost impossible to work with.
 
-This bot allows for easy development and has a concise syntax based of Aiogram (although no async implementation yet).
+This bot allows for easy development and has a concise syntax based of Aiogram with a really simple async impl.
 
 ## Getting started
 ### Installation
@@ -62,4 +62,3 @@ The bot does not implements full control of the ICQ new api yet, I'll try to map
 ## TODO
 - Map all of the others endpoints
 - Use matches with regex or string match to search for terms in messages
-- Impl async
