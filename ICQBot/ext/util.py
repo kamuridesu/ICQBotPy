@@ -63,21 +63,6 @@ class CustomDict(dict):
         return iter(self.__dict__)
 
 
-# def fetcher(get_post: str="get", *args, **kwargs) -> Response:
-#     response: typing.Union[Response, None] = None
-#     if get_post == "get":
-#         response = requests.get(*args, **kwargs)
-#     elif get_post == "post":
-#         response = requests.post(*args, **kwargs)
-#     else:
-#         raise NotExpectedError
-#     if response.status in range(500, 599):
-#         raise ServerError
-#     if response.status in range(400, 499):
-#         raise ClientError
-#     return response
-
-
 class Response(CustomDict):
     def __init__(self, status_code, content):
         self.status = status_code
@@ -88,6 +73,12 @@ class Response(CustomDict):
 
 
 async def fetcher(get_post: str="get", *args, **kwargs):
+    """
+    function to fetch data from endpoints
+    :param get_post: REST option (defaults to get)
+    :param *args and *kwargs to be used by session
+    :return a Response object with the content of the endpoint
+    """
     response: typing.Union[Response, None] = None
     async with aiohttp.ClientSession() as session:
         if get_post == "get":

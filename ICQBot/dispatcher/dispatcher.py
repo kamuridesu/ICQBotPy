@@ -25,8 +25,6 @@ class Dispatcher:
         self.running_tasks = set()
 
     async def _pollingHandler(self, response: dict[typing.Any, typing.Any]):
-        # print(response)
-        # print("----------", self._last_event_id)
         last_event_type = response['events'][-1]['type']
         if last_event_type == "newMessage":
             rc = (ReceivedMessage(response['events'][-1]['payload'], self._bot_instance))
@@ -49,10 +47,8 @@ class Dispatcher:
         while self._is_polling:
             try:
                 updates = await getEvents(self._bot_instance.token, self._bot_instance.endpoint, self._last_event_id, timeout)
-                print(updates)
                 if updates['events']:
                     self._last_event_id = updates['events'][-1]['eventId']
-                    # await asyncio.gather(self._pollingHandler(updates))
                     task = asyncio.create_task(self._pollingHandler(updates))
                     self.running_tasks.add(task)
                     task.add_done_callback(lambda t: self.running_tasks.remove(t))
