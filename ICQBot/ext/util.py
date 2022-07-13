@@ -94,4 +94,3 @@ async def fetcher(get_post: str="get", *args, **kwargs):
         if response.status in range(400, 499):
             raise ClientError
     return response
-

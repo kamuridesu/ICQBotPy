@@ -13,7 +13,7 @@ def requirements():
 
 
 setup(name="ICQBot",
-      version = "0.2.0-beta",
+      version = "0.2.1-beta",
       author="Kamuri Amorim",
       author_email='luiz.k.amorim@gmail.com',
       url="https://github.com/kamuridesu/ICQBotPy",
