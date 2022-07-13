@@ -1,25 +1,11 @@
 import typing
-import requests
 from copy import deepcopy
+import aiohttp
+import json
 
 from ..exceptions.ClientErrors import ClientError
 from ..exceptions.GenericErrors import NotExpectedError
 from ..exceptions.ServerErrors import ServerError
-
-
-def fetcher(get_post: str="get", *args, **kwargs) -> requests.Response:
-    response: typing.Union[requests.Response, None] = None
-    if get_post == "get":
-        response = requests.get(*args, **kwargs)
-    elif get_post == "post":
-        response = requests.post(*args, **kwargs)
-    else:
-        raise NotExpectedError
-    if response.status_code in range(500, 599):
-        raise ServerError
-    if response.status_code in range(400, 499):
-        raise ClientError
-    return response
 
 
 class CustomDict(dict):
@@ -75,3 +61,46 @@ class CustomDict(dict):
 
     def __iter__(self):
         return iter(self.__dict__)
+
+
+# def fetcher(get_post: str="get", *args, **kwargs) -> Response:
+#     response: typing.Union[Response, None] = None
+#     if get_post == "get":
+#         response = requests.get(*args, **kwargs)
+#     elif get_post == "post":
+#         response = requests.post(*args, **kwargs)
+#     else:
+#         raise NotExpectedError
+#     if response.status in range(500, 599):
+#         raise ServerError
+#     if response.status in range(400, 499):
+#         raise ClientError
+#     return response
+
+
+class Response(CustomDict):
+    def __init__(self, status_code, content):
+        self.status = status_code
+        self.content = content
+
+    async def json(self):
+        return json.loads(self.content.decode("utf-8"))
+
+
+async def fetcher(get_post: str="get", *args, **kwargs):
+    response: typing.Union[Response, None] = None
+    async with aiohttp.ClientSession() as session:
+        if get_post == "get":
+            async with session.get(*args, **kwargs) as _response:
+                response = Response(_response.status, await _response.read())
+        elif get_post == "post":
+            async with session.post(*args, **kwargs) as _response:
+                response = Response(_response.status, await _response.read())
+        else:
+            raise NotExpectedError
+        if response.status in range(500, 599):
+            raise ServerError
+        if response.status in range(400, 499):
+            raise ClientError
+    return response
+

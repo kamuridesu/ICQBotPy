@@ -15,8 +15,8 @@ class Callback(CustomDict):
                 if attr not in ["message", "from", "queryId"]:
                     self.__setattr__(attr, data[attr])
 
-    def answer(self, text: str="", show_alert: bool=False) -> bool:
+    async def answer(self, text: str="", show_alert: bool=False) -> bool:
         url = ""
         if hasattr(self, 'url'):
             url = self.url
-        return answerCallbackQuery(self.bot_instance.token, self.bot_instance.endpoint, self.query_id, text, show_alert, url)
+        return await answerCallbackQuery(self.bot_instance.token, self.bot_instance.endpoint, self.query_id, text, show_alert, url)

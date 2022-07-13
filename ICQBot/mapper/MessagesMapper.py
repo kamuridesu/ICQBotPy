@@ -1,4 +1,4 @@
-import requests
+import aiohttp
 import typing
 import os
 
@@ -7,23 +7,23 @@ from ..exceptions.MessageErrors import MessageNotSentError, FileTypeMismatchErro
 
 from ..ext.parseModes import Formatting, HtmlMarkup, Markdown
 from ..ext.Keyboards import InlineKeyboardMarkup
-from ..ext.util import fetcher
+from ..ext.util import fetcher, Response
 
 
-def getBotInfo(token: str, endpoint: str) -> dict[str, typing.Any]:
-    response: requests.Response = fetcher("get", endpoint + "/self/get?token=" + token)
+async def getBotInfo(token: str, endpoint: str) -> dict[str, typing.Any]:
+    response: Response = await fetcher("get", endpoint + "/self/get?token=" + token)
 
-    if response and response.status_code == 200:
-        return response.json()
+    if response and response.status == 200:
+        return (await response.json())
     raise NotExpectedError("Server response is empty or invalid!")
 
 
-def verifyToken(token: str, endpoint: str) -> bool:
-    info: dict[str, typing.Any] = getBotInfo(token, endpoint)
+async def verifyToken(token: str, endpoint: str) -> bool:
+    info: dict[str, typing.Any] = await getBotInfo(token, endpoint)
     return info['ok']
 
 
-def sendText(token: str, endpoint: str, chat_id: str, text: str="", reply_message_id: str="", forward_chat_id: str="", forward_message_id: str="", inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup(), formatting: Formatting=Formatting(), parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default()) -> dict[str, str]:
+async def sendText(token: str, endpoint: str, chat_id: str, text: str="", reply_message_id: str="", forward_chat_id: str="", forward_message_id: str="", inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup(), formatting: Formatting=Formatting(), parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default()) -> dict[str, str]:
     route = "/messages/sendText?"
     query = f"token={token}&chatId={chat_id}&parseMode={parse_mode.content}"
     query += f"&text={text}"
@@ -37,9 +37,9 @@ def sendText(token: str, endpoint: str, chat_id: str, text: str="", reply_messag
         query += f"&inlineKeyboardMarkup={inline_keyboard_markup.getButtonsAsString()}"
     if formatting.content:
         query += f"&format={formatting.content}"
-    response: requests.Response = fetcher("get", endpoint + route + query)
-    if response.status_code == 200:
-        response_dict: dict = response.json()
+    response: Response = await fetcher("get", endpoint + route + query)
+    if response.status == 200:
+        response_dict: dict = (await response.json())
         if response_dict['ok']:
             response_dict.update({
                 "chat_id": chat_id,
@@ -53,7 +53,7 @@ def sendText(token: str, endpoint: str, chat_id: str, text: str="", reply_messag
     raise MessageNotSentError
 
 
-def editMessage(token: str, endpoint: str, chat_id: str, message_id: str, text: str, inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup(), formatting: Formatting=Formatting(), parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default()) -> dict[str, typing.Any]:
+async def editMessage(token: str, endpoint: str, chat_id: str, message_id: str, text: str, inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup(), formatting: Formatting=Formatting(), parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default()) -> dict[str, typing.Any]:
     route = "/messages/editText?"
     query = f"&token={token}&chatId={chat_id}&msgId={message_id}&text={text}&parseMode={parse_mode.content}"
     if inline_keyboard_markup.getButtonsAsString():
@@ -61,10 +61,10 @@ def editMessage(token: str, endpoint: str, chat_id: str, message_id: str, text: 
     if formatting.content:
         query += f"&format={formatting.content}"
 
-    response: requests.Response = fetcher("get", endpoint + route + query)
+    response: Response = await fetcher("get", endpoint + route + query)
 
-    if response.status_code == 200:
-        response_dict: dict = response.json()
+    if response.status == 200:
+        response_dict: dict = (await response.json())
         if response_dict['ok']:
             response_dict.update({
                 "chat_id": chat_id,
@@ -75,11 +75,11 @@ def editMessage(token: str, endpoint: str, chat_id: str, message_id: str, text: 
     raise MessageNotSentError
 
 
-def uploadFile(endpoint: str, route: str, query: str, file_id: typing.Union[str, None]=None, file: typing.Union[str, bytes, None]=None) -> requests.Response:
-    response: typing.Union[None, requests.Response] = None
+async def uploadFile(endpoint: str, route: str, query: str, file_id: typing.Union[str, None]=None, file: typing.Union[str, bytes, None]=None) -> Response:
+    response: typing.Union[None, Response] = None
     if file_id:
         query += f"&fileId={file_id}"
-        response = fetcher("get", endpoint + route + query)
+        response = await fetcher("get", endpoint + route + query)
     elif file:
         content: typing.Union[dict[str, tuple[str, bytes]], None] = None
         if isinstance(file, bytes):
@@ -91,16 +91,16 @@ def uploadFile(endpoint: str, route: str, query: str, file_id: typing.Union[str,
                 content = {'file': (os.path.basename(file), file_bytes.read())}
         if content is None:
             raise FileTypeMismatchError
-        response = fetcher("post", endpoint + route + query, files=content)
+        response = await fetcher("post", endpoint + route + query, files=content)
     if response is not None:
         return response
     raise NotExpectedError("File cannot be uploaded! Cause unknown")
 
 
-def sendFile(token: str, endpoint: str, chat_id: str, file: typing.Union[str, bytes, None]=None, file_id: str="", caption: str="", reply_message_id: str="", forward_chat_id: str="", forward_message_id: str="", inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup(), formatting: Formatting=Formatting(), parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default()) -> dict[str, str]:
+async def sendFile(token: str, endpoint: str, chat_id: str, file: typing.Union[str, bytes, None]=None, file_id: str="", caption: str="", reply_message_id: str="", forward_chat_id: str="", forward_message_id: str="", inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup(), formatting: Formatting=Formatting(), parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default()) -> dict[str, str]:
     route = "/messages/sendFile?"
     query = f"token={token}&chatId={chat_id}&parseMode={parse_mode.content}"
-    response: typing.Union[requests.Response, None] = None
+    response: typing.Union[Response, None] = None
     if file_id and file:
         raise AmbigousFileError
     if file_id == "" and file == None:
@@ -120,18 +120,18 @@ def sendFile(token: str, endpoint: str, chat_id: str, file: typing.Union[str, by
     
     response = uploadFile(endpoint, route, query, file_id, file)
         
-    if response.status_code == 200:
-        response_dict: dict = response.json()
+    if response.status == 200:
+        response_dict: dict = (await response.json())
         if response_dict['ok']:
             return response_dict
         raise MessageNotSentError(response_dict['description'])
     raise MessageNotSentError
 
 
-def sendVoice(token: str, endpoint: str, chat_id: str, file: typing.Union[str, bytes, None]=None, file_id: str="", reply_message_id: str="", forward_chat_id: str="", forward_message_id: str="", inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup()) -> dict[str, typing.Any]:
+async def sendVoice(token: str, endpoint: str, chat_id: str, file: typing.Union[str, bytes, None]=None, file_id: str="", reply_message_id: str="", forward_chat_id: str="", forward_message_id: str="", inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup()) -> dict[str, typing.Any]:
     route = "/messages/sendVoice?"
     query = f"token={token}&chatId={chat_id}"
-    response: typing.Union[requests.Response, None] = None
+    response: typing.Union[Response, None] = None
     if file_id and file:
         raise AmbigousFileError
     if reply_message_id:
@@ -145,35 +145,35 @@ def sendVoice(token: str, endpoint: str, chat_id: str, file: typing.Union[str, b
     
     response = uploadFile(endpoint, route, query, file_id, file)
         
-    if response.status_code == 200:
-        response_dict: dict = response.json()
+    if response.status == 200:
+        response_dict: dict = (await response.json())
         if response_dict['ok']:
             return response_dict
         raise MessageNotSentError(response_dict['description'])
     raise MessageNotSentError
 
 
-def getFileInfo(token: str, endpoint: str, file_id: str) -> dict[str, typing.Any]:
+async def getFileInfo(token: str, endpoint: str, file_id: str) -> dict[str, typing.Any]:
     route = "/files/getInfo?"
     query = f"token={token}&fileId={file_id}"
 
-    response: requests.Response = fetcher("get", endpoint + route + query)
+    response: Response = await fetcher("get", endpoint + route + query)
 
-    if response.status_code == 200:
-        return response.json()
+    if response.status == 200:
+        return (await response.json())
     raise FileNotFoundError
 
 
-def deleteMessage(token: str, endpoint: str, chat_id: str, message_id: str) -> bool:
+async def deleteMessage(token: str, endpoint: str, chat_id: str, message_id: str) -> bool:
     route = "/messages/deleteMessages?"
     query = f"token={token}&chatId={chat_id}&msgId={message_id}"
-    response: requests.Response = fetcher("get", endpoint + route + query)
-    if response.status_code == 200:
-        return response.json()['ok']    
+    response: Response = await fetcher("get", endpoint + route + query)
+    if response.status == 200:
+        return (await response.json())['ok']    
     raise MessageNotDeletedError
 
 
-def answerCallbackQuery(token: str, endpoint: str, query_id: str, text: str="", show_alert: bool=False, url=""):
+async def answerCallbackQuery(token: str, endpoint: str, query_id: str, text: str="", show_alert: bool=False, url=""):
     route = "/messages/answerCallbackQuery?"
     query = f"token={token}&queryId={query_id}"
     if text:
@@ -183,9 +183,7 @@ def answerCallbackQuery(token: str, endpoint: str, query_id: str, text: str="", 
     if url:
         query += f"&url={url}"
 
-    response: requests.Response = fetcher("get", endpoint + route + query)
-    if response.status_code == 200:
-        return response.json()['ok']
+    response: Response = await fetcher("get", endpoint + route + query)
+    if response.status == 200:
+        return (await response.json())['ok']
     raise CallbackAnswerError
-
-

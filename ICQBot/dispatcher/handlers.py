@@ -26,7 +26,7 @@ class MessageHandlers:
             filters.append(message_filters)
         return self.filtersRegister.registerMessageFilter(tuple(filters), function)
 
-    def handle(self, message: ReceivedMessage):
+    async def handle(self, message: ReceivedMessage):
         """
         Handles a `ReceivedMessage` event and if it matches a filter, it executes the assigned function
         :param `message` the received message
@@ -35,7 +35,7 @@ class MessageHandlers:
             for filters, function in _filter.items():
                 for f in filters:
                     if message.text.startswith(f):
-                        return function(message)
+                        return await function(message)
 
 
 class CallbackHandlers(MessageHandlers):
@@ -49,7 +49,7 @@ class CallbackHandlers(MessageHandlers):
         """
         self.filtersRegister.registerCallbackHandler(context, function, value)
 
-    def handle(self, callback: Callback):
+    async def handle(self, callback: Callback):
         """
         Handles a callback query event and if it matches a filter, it executes the assigned function
         : param `callback`: the callback query
@@ -58,7 +58,7 @@ class CallbackHandlers(MessageHandlers):
             if _filter['context'] in callback and callback[_filter['context']] == _filter['value']:
                 return _filter['callable'](callback)
             elif _filter['context'] in callback and _filter["value"] == "":
-                return _filter['callable'](callback)
+                return await _filter['callable'](callback)
             
 
 
