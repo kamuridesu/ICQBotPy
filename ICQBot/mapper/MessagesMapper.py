@@ -23,7 +23,7 @@ def verifyToken(token: str, endpoint: str) -> bool:
     return info['ok']
 
 
-def sendText(token: str, endpoint: str, chat_id: str, text: str="", reply_message_id: str="", forward_chat_id: str="", forward_message_id: str="", inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup(), formatting: Formatting=Formatting, parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default()) -> dict[str, str]:
+def sendText(token: str, endpoint: str, chat_id: str, text: str="", reply_message_id: str="", forward_chat_id: str="", forward_message_id: str="", inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup(), formatting: Formatting=Formatting(), parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default()) -> dict[str, str]:
     route = "/messages/sendText?"
     query = f"token={token}&chatId={chat_id}&parseMode={parse_mode.content}"
     query += f"&text={text}"
@@ -53,7 +53,7 @@ def sendText(token: str, endpoint: str, chat_id: str, text: str="", reply_messag
     raise MessageNotSentError
 
 
-def editMessage(token: str, endpoint: str, chat_id: str, message_id: str, text: str, inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup(), formatting: Formatting=Formatting, parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default()) -> dict[str, typing.Any]:
+def editMessage(token: str, endpoint: str, chat_id: str, message_id: str, text: str, inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup(), formatting: Formatting=Formatting(), parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default()) -> dict[str, typing.Any]:
     route = "/messages/editText?"
     query = f"&token={token}&chatId={chat_id}&msgId={message_id}&text={text}&parseMode={parse_mode.content}"
     if inline_keyboard_markup.getButtonsAsString():
@@ -81,7 +81,7 @@ def uploadFile(endpoint: str, route: str, query: str, file_id: typing.Union[str,
         query += f"&fileId={file_id}"
         response = fetcher("get", endpoint + route + query)
     elif file:
-        content: typing.Union[dict[str, bytes], None] = None
+        content: typing.Union[dict[str, tuple[str, bytes]], None] = None
         if isinstance(file, bytes):
             content = {'file': ('noname', file)}
         elif isinstance(file, str):
@@ -97,7 +97,7 @@ def uploadFile(endpoint: str, route: str, query: str, file_id: typing.Union[str,
     raise NotExpectedError("File cannot be uploaded! Cause unknown")
 
 
-def sendFile(token: str, endpoint: str, chat_id: str, file: typing.Union[str, bytes, None]=None, file_id: str="", caption: str="", reply_message_id: str="", forward_chat_id: str="", forward_message_id: str="", inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup(), formatting: Formatting=Formatting, parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default()) -> dict[str, str]:
+def sendFile(token: str, endpoint: str, chat_id: str, file: typing.Union[str, bytes, None]=None, file_id: str="", caption: str="", reply_message_id: str="", forward_chat_id: str="", forward_message_id: str="", inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup(), formatting: Formatting=Formatting(), parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default()) -> dict[str, str]:
     route = "/messages/sendFile?"
     query = f"token={token}&chatId={chat_id}&parseMode={parse_mode.content}"
     response: typing.Union[requests.Response, None] = None

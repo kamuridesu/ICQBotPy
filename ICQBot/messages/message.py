@@ -21,12 +21,12 @@ class SentMessage(CustomDict):
         if 'forward_message_id' in message_data:
             self.forward_message_id = message_data['forward_message_id']
 
-    def edit(self, text: str, inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup(), formatting: Formatting=Formatting, parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default()):
+    def edit(self, text: str, inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup(), formatting: Formatting=Formatting(), parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default()):
         edited_message: dict[str, typing.Any] = self.bot_instance.editMessage(self.chat_id, self.message_id, text, inline_keyboard_markup, formatting, parse_mode)
         self.chat_id = edited_message['chat_id']
         self.text = edited_message['text']
 
-    def delete(self) -> bool:
+    def delete(self) -> None:
         deleted = self.bot_instance.deleteMessage(self.chat_id, self.message_id)
         if deleted:
             self.token = None
@@ -40,6 +40,7 @@ class SentMessage(CustomDict):
                 self.forward_chat_id = None
             if hasattr(self, "forward_message_id"):
                 self.forward_message_id = None
+        return None
 
 
 class Author(CustomDict):
@@ -55,20 +56,21 @@ class Author(CustomDict):
 
 
 class Payload(CustomDict):
-    def __init__(self, payload_data: dict[str, str], bot_instance=None) -> None:
+    def __init__(self, payload_data, bot_instance=None) -> None:
         self.type = payload_data['type']
-        self.payload: typing.Union[StickerPayload, FilePayload, None] = None
-        payload_data = payload_data['payload']
+        self.payload: typing.Union[StickerPayload, FilePayload, None, MentionPayload, ReceivedMessage] = None
+        # _payload_data: typing.Union[dict[typing.Any, typing.Any], str] = payload_data['payload']
+        _payload_data = payload_data['payload']
         if self.type == "sticker":
-            self.payload = StickerPayload(payload_data["fileId"])
+            self.payload = StickerPayload(_payload_data["fileId"], "sticker")
         elif self.type == "file":
-            self.payload = FilePayload(payload_data['fileId'], payload_data['type'])
+            self.payload = FilePayload(_payload_data['fileId'], _payload_data['type'])
         elif self.type == "mention":
-            self.payload = MentionPayload(payload_data["userId"], payload_data['firstName'])
+            self.payload = MentionPayload(_payload_data["userId"], _payload_data['firstName'])
         elif self.type == "forward":
-            self.payload = ReceivedMessage(payload_data['message'], bot_instance)
+            self.payload = ReceivedMessage(_payload_data['message'], bot_instance)
         elif self.type == "reply":
-            self.payload = ReceivedMessage(payload_data['message'], bot_instance)
+            self.payload = ReceivedMessage(_payload_data['message'], bot_instance)
 
 
 class ReceivedMessage(CustomDict):
@@ -81,10 +83,11 @@ class ReceivedMessage(CustomDict):
             self.chat_title = message_data['chat']['title']
         self.author: Author = Author(message_data['from'])
         self.message_id: str = message_data['msgId']
+        self.text: str = ""
         try:
-            self.text: str = message_data['text']
+            self.text = message_data['text']
         except KeyError:
-            self.text: str = ""
+            ...
         self.timestamp: int = message_data['timestamp']
         self.payloads = []
         try:
@@ -94,7 +97,7 @@ class ReceivedMessage(CustomDict):
         except Exception:
             pass
 
-    def reply(self, text: str="", forward_chat_id: str="", forward_message_id: str="", inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup(), formatting: Formatting=Formatting, parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default()) -> SentMessage:
+    def reply(self, text: str="", forward_chat_id: str="", forward_message_id: str="", inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup(), formatting: Formatting=Formatting(), parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default()) -> SentMessage:
         return self.bot_instance.sendText(self.chat_id, text, self.message_id, forward_chat_id, forward_message_id, inline_keyboard_markup, formatting, parse_mode)
 
     

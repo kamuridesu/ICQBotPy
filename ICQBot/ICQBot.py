@@ -18,7 +18,7 @@ class ICQBot:
         """
         return getBotInfo(self.token, self.endpoint)
 
-    def sendText(self, chat_id: str, text: str="", reply_message_id: str="", forward_chat_id: str="", forward_message_id: str="", inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup(), formatting: Formatting=Formatting, parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default()) -> SentMessage:
+    def sendText(self, chat_id: str, text: str="", reply_message_id: str="", forward_chat_id: str="", forward_message_id: str="", inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup(), formatting: Formatting=Formatting(), parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default()) -> SentMessage:
         """
         Sends a text message
         :param chat_id: the id of the chat
@@ -32,10 +32,10 @@ class ICQBot:
         """
         return SentMessage(sendText(self.token, self.endpoint, chat_id, text, reply_message_id, forward_chat_id, forward_message_id, inline_keyboard_markup, formatting, parse_mode), self)
 
-    def editMessage(self, chat_id: str, message_id: str, text: str, inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup(), formatting: Formatting=Formatting, parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default()) -> SentMessage:
+    def editMessage(self, chat_id: str, message_id: str, text: str, inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup(), formatting: Formatting=Formatting(), parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default()) -> dict[str, typing.Any]:
         return editMessage(self.token, self.endpoint, chat_id, message_id, text, inline_keyboard_markup, formatting, parse_mode)
 
-    def sendFile(self, chat_id: str, file: typing.Union[str, bytes, None]=None, file_id: str="", caption: str="", reply_message_id: str="", forward_chat_id: str="", forward_message_id: str="", inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup(), formatting: Formatting=Formatting, parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default()) -> dict[str, str]:
+    def sendFile(self, chat_id: str, file: typing.Union[str, bytes, None]=None, file_id: str="", caption: str="", reply_message_id: str="", forward_chat_id: str="", forward_message_id: str="", inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup(), formatting: Formatting=Formatting(), parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default()) -> dict[str, str]:
         return sendFile(self.token, self.endpoint, chat_id, file, file_id, caption, reply_message_id, forward_chat_id, forward_message_id, inline_keyboard_markup, formatting, parse_mode)
 
     def getFileInfo(self, file_id: str) -> dict[str, typing.Any]:
@@ -79,7 +79,7 @@ class ICQBot:
         return getPendingMembers(self.token, self.endpoint, chat_id)
 
     def blockChatUser(self, chat_id: str, user_id: str, delete_last_messages: bool=False) -> bool:
-        return getPendingMembers(self.token, self.endpoint, chat_id, user_id, delete_last_messages)
+        return blockChatUser(self.token, self.endpoint, chat_id, user_id, delete_last_messages)
     
     def unblockChatUser(self, chat_id: str, user_id: str) -> bool:
         return unblockChatUser(self.token, self.endpoint, chat_id, user_id)

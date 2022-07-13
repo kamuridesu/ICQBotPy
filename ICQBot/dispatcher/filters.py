@@ -8,7 +8,7 @@ class FiltersRegistry:
     def __init__(self):
         self.filters: list[dict[tuple, typing.Callable]] = []
 
-    def register(self, message_filters: tuple[str], wrapped_function: typing.Callable) -> None:
+    def register(self, message_filters: tuple[str, ...], wrapped_function: typing.Callable) -> None:
         """
         Registers a filter with a function
 

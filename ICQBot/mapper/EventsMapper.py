@@ -1,6 +1,8 @@
 import requests
 import typing
 
+from ICQBot.exceptions.GenericErrors import NotExpectedError
+
 from ..ext.util import fetcher
 
 
@@ -23,6 +25,7 @@ def getEvents(token: str, endpoint: str, last_event_id: int=0, poll_time: int=20
     response: requests.Response = fetcher("get", endpoint + route + query)
     if response.status_code == 200:
         return response.json()
+    raise NotExpectedError
 
 
 if __name__ == "__main__":

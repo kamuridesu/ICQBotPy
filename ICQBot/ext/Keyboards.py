@@ -53,7 +53,7 @@ class InlineKeyboardMarkup:
             print()
 
     @property
-    def buttons(self) -> list[Button]:
+    def buttons(self) -> list[list[Button]]:
         """
         Get all the buttons
         """

@@ -1,4 +1,5 @@
-from .message import ReceivedMessage
+from .message import ReceivedMessage, SentMessage
+from .callback import Callback
 
 
-__all__ = [ReceivedMessage]
+__all__ = ["ReceivedMessage", "SentMessage", "Callback"]

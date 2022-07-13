@@ -1,5 +1,5 @@
 from ICQBot import ICQBot, Dispatcher
-from ICQBot.ext import ReceivedMessage
+from ICQBot.messages import ReceivedMessage
 
 
 bot = ICQBot("TOKEN")
