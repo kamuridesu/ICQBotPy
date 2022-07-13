@@ -22,18 +22,41 @@ You can install this framework with the command `pip install ICQBot`.
 
 ## Current state
 The bot does not implements full control of the ICQ new api yet, I'll try to map the other endpoints asap. The current implementations are:
+- Self:
+	- `​/self​/get`
 - Chats:
 	- `/chats/members/delete`
+	- `POST /chats/avatar/set`
+	- `/chats/sendActions`
+	- `/chats/getInfo`
+	- `/chats/getAdmins`
+	- `/chats/getMembers`
+	- `/chats/getBlockedUsers`
+	- `/chats/getPendingUsers`
+	- `/chats/blockUser`
+	- `/chats/unblockUser`
+	- `/chats/resolvePending`
+	- `/chats/setTitle`
+	- `/chats/setAbout`
+	- `/chats/setRules`
+	- `/chats/pinMessage`
+	- `/chats/unpinMessage`
 - Message:
 	- `/messages/deleteMessages`
 	- `/messages/sendText`
 	- `/messages/editText`
+	- `/messages/answerCallbackQuery`
+	- `GET ​/messages​/sendFile`
+	- `POST /messages/sendFile`
+	- `GET /messages/sendVoice`
+	- `POST /messages/sendVoice`
 - Files:
 	- `/files/getInfo`
 	- `/messages/sendFile`
 - Events:
 	- `/events/get`
 		- `newMessage`
+		- `callbackQuery`
 
 
 ## TODO
