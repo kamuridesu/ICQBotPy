@@ -5,6 +5,9 @@ from ..mapper.MessagesMapper import answerCallbackQuery
 
 
 class Callback(CustomDict):
+    """
+    Dataclass to generate Callback objects
+    """
     def __init__(self, data: dict, bot_instance) -> None:
         self.bot_instance = bot_instance
         self.author = Author(data['from'])
@@ -16,6 +19,11 @@ class Callback(CustomDict):
                     self.__setattr__(attr, data[attr])
 
     async def answer(self, text: str="", show_alert: bool=False) -> bool:
+        """
+        answers a callback query
+        :param text: notification text
+        :param show_alert: shows alert instead of notification
+        :return true if success else false"""
         url = ""
         if hasattr(self, 'url'):
             url = self.url
