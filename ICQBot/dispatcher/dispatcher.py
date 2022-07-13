@@ -5,7 +5,7 @@ from ..mapper.EventsMapper import getEvents
 from ..exceptions.DispatcherErrors import *
 from ..messages.message import ReceivedMessage
 from ..messages.callback import Callback
-from .handlers import MessageHandlers
+from .handlers import MessageHandlers, CallbackHandlers
 from .filters import FiltersRegistry
 
 
@@ -20,6 +20,7 @@ class Dispatcher:
         self._last_event_id = 0
         self.filterRegistry = FiltersRegistry()
         self.messageHandlers = MessageHandlers(self.filterRegistry)
+        self.callbackHandlers = CallbackHandlers(self.filterRegistry)
 
     def _pollingHandler(self, response: dict[typing.Any, typing.Any]):
         # print(response)
@@ -33,7 +34,7 @@ class Dispatcher:
                     self.messageHandlers.handle(rc)
                 if last_event_type == "callbackQuery":
                     cb = Callback(response['events'][-1]['payload'], self._bot_instance)
-                    print(cb)
+                    self.callbackHandlers.handle(cb)
     
     def start_polling(self, timeout: int=20) -> None:
         """
@@ -62,7 +63,7 @@ class Dispatcher:
 
             @dp.message_handler(commands=['start', 'welcome', 'about'])
 
-            async def cmd_handler(message: types.Message):
+            def cmd_handler(message: ReceivedMessage):
         
 
         :param `commands`: list of commands
@@ -70,6 +71,30 @@ class Dispatcher:
         """
         def decorator(function: typing.Callable):
             self.messageHandlers.register(commands, function)
+            return function
+        return decorator
+
+    def callback_query_handler(self, context: str, value: typing.Any = ""):
+        """
+        Decorator for message handler
+
+        Examples:
+
+        Simple callback handler:
+
+            @dp.callback_query_handler(context="callbackData")
+            def callback_handler(callback: Callback):
+        
+        Callback handler to trigger when a specified value is used
+
+            @dp.callback_query_handler(context="callbackData", value="hello")
+            def callback_handler(callback: Callback):
+
+        :param `commands`: list of commands
+        :return: decorated function
+        """
+        def decorator(function: typing.Callable):
+            self.callbackHandlers.register(context, function, str(value))
             return function
         return decorator
 

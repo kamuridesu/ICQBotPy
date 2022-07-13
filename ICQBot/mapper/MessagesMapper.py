@@ -3,7 +3,7 @@ import typing
 import os
 
 from ..exceptions.GenericErrors import NotExpectedError
-from ..exceptions.MessageErrors import MessageNotSentError, FileTypeMismatchError, AmbigousFileError, MessageNotDeletedError
+from ..exceptions.MessageErrors import MessageNotSentError, FileTypeMismatchError, AmbigousFileError, MessageNotDeletedError, CallbackAnswerError
 
 from ..ext.parseModes import Formatting, HtmlMarkup, Markdown
 from ..ext.Keyboards import InlineKeyboardMarkup
@@ -173,16 +173,19 @@ def deleteMessage(token: str, endpoint: str, chat_id: str, message_id: str) -> b
     raise MessageNotDeletedError
 
 
-# def callbackHandler(token: str, endpoint: str, query_id: str, text: str="", show_alert: bool=False, url=""):
-#     route = "/messages/answerCallbackQuery?"
-#     query = f"token={token}&queryId={query_id}"
-#     if text:
-#         query += f"&text={text}"
-#     if show_alert:
-#         query += f"&showAlert={show_alert}"
-#     if url:
-#         query += f"&url={url}"
+def answerCallbackQuery(token: str, endpoint: str, query_id: str, text: str="", show_alert: bool=False, url=""):
+    route = "/messages/answerCallbackQuery?"
+    query = f"token={token}&queryId={query_id}"
+    if text:
+        query += f"&text={text}"
+    if show_alert:
+        query += f"&showAlert={show_alert}"
+    if url:
+        query += f"&url={url}"
 
-#     response: 
+    response: requests.Response = fetcher("get", endpoint + route + query)
+    if response.status_code == 200:
+        return response.json()['ok']
+    raise CallbackAnswerError
 
 

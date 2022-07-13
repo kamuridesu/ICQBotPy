@@ -1,20 +1,10 @@
 import json
-import typing
+from .util import CustomDict
 
 
-class Button:
-    def __init__(self, *kwargs):
+class Button(CustomDict):
+    def __init__(self, **kwargs):
         self.data = kwargs
-    
-    def __str__(self):
-        return self.data.__str__()
-
-    @property
-    def __dict__(self):
-        return self.data
-    
-    def __repr__(self) -> str:
-        return self.__str__()
 
 
 class InlineKeyboardMarkup:
@@ -40,6 +30,9 @@ class InlineKeyboardMarkup:
         """
         self.components.append([])
 
+    def getRowsLen(self) -> int:
+        return len(self.components)
+
     def _printRows(self):
         """
         For test only
@@ -64,7 +57,10 @@ class InlineKeyboardMarkup:
         Dumps buttons to string
         """
         if self.buttons[0]:
-            _json = json.dumps(self.buttons)
+            dict_buttons = []
+            for x in self.buttons:
+                dict_buttons.append([y.data for y in x])
+            _json = json.dumps(dict_buttons)
             return _json
         return ""
 

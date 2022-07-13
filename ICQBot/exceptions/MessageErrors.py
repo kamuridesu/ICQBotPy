@@ -16,3 +16,8 @@ class AmbigousFileError(MessageNotSentError):
 class FileTypeMismatchError(MessageNotSentError):
 	def __init__(self, message: str="Cannot send file! The type must be a str with the path of the file or bytes!") -> None:
 		super().__init__(message)
+
+
+class CallbackAnswerError(MessageNotSentError):
+	def __init__(self, message: str="Cannot answer callback! Try again!") -> None:
+		super().__init__(message)

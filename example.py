@@ -1,5 +1,7 @@
 from ICQBot import ICQBot, Dispatcher
 from ICQBot.messages import ReceivedMessage
+from ICQBot.messages.callback import Callback
+from ICQBot.ext.Keyboards import InlineKeyboardMarkup, Button
 
 
 bot = ICQBot("TOKEN")
@@ -18,6 +20,27 @@ def test(message: ReceivedMessage):
 def ban(message: ReceivedMessage):
     user_to_ban = message.payloads[-1].payload.user_id
     return print(bot.removeMembers(message.chat_id, user_to_ban))
+
+
+# Keyboard
+@dp.message_handler(commands="/start")
+def start(message: ReceivedMessage):
+    keyboard = InlineKeyboardMarkup()
+    keyboard.addButton(Button(text="Hello", callbackData="World"))
+    keyboard.addRow()
+    keyboard.addButton(Button(text="Bye", callbackData="Ok"), row=1)
+    return message.reply("Ola", inline_keyboard_markup=keyboard)
+
+
+# callback handlers
+@dp.callback_query_handler(context="callbackData", value="World")
+def answer_world(callback: Callback):
+    return callback.answer(f"Hello " + callback.callbackData)
+
+
+@dp.callback_query_handler(context="callbackData", value="Ok")
+def answer_ok(callback: Callback):
+    return callback.answer("No")
 
 
 if __name__ == "__main__":
