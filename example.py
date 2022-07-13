@@ -1,6 +1,4 @@
-import asyncio
-
-from ICQBot import ICQBot, Dispatcher
+from ICQBot import ICQBot, Dispatcher, executor
 from ICQBot.messages import ReceivedMessage
 from ICQBot.messages.callback import Callback
 from ICQBot.ext.Keyboards import InlineKeyboardMarkup, Button
@@ -46,4 +44,4 @@ async def answer_ok(callback: Callback):
 
 
 if __name__ == "__main__":
-    asyncio.run(dp.start_polling())
+    executor(dp)
