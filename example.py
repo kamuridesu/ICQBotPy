@@ -1,3 +1,5 @@
+import asyncio
+
 from ICQBot import ICQBot, Dispatcher
 from ICQBot.messages import ReceivedMessage
 from ICQBot.messages.callback import Callback
@@ -10,21 +12,21 @@ dp = Dispatcher(bot)
 
 # to repeat a message
 @dp.message_handler(commands="/echo")
-def test(message: ReceivedMessage):
+async def test(message: ReceivedMessage):
     print(message)
     return message.reply(' '.join(message.text.split(' ')[1:]))
 
 
 # to ban an user
 @dp.message_handler(commands=["/ban"])
-def ban(message: ReceivedMessage):
+async def ban(message: ReceivedMessage):
     user_to_ban = message.payloads[-1].payload.user_id
     return print(bot.removeMembers(message.chat_id, user_to_ban))
 
 
 # Keyboard
 @dp.message_handler(commands="/start")
-def start(message: ReceivedMessage):
+async def start(message: ReceivedMessage):
     keyboard = InlineKeyboardMarkup()
     keyboard.addButton(Button(text="Hello", callbackData="World"))
     keyboard.addRow()
@@ -34,14 +36,14 @@ def start(message: ReceivedMessage):
 
 # callback handlers
 @dp.callback_query_handler(context="callbackData", value="World")
-def answer_world(callback: Callback):
+async def answer_world(callback: Callback):
     return callback.answer(f"Hello " + callback.callbackData)
 
 
 @dp.callback_query_handler(context="callbackData", value="Ok")
-def answer_ok(callback: Callback):
+async def answer_ok(callback: Callback):
     return callback.answer("No")
 
 
 if __name__ == "__main__":
-    dp.start_polling()
+    asyncio.run(dp.start_polling())

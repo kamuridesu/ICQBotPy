@@ -2,7 +2,7 @@ from setuptools import find_packages
 from distutils.core import setup
 
 setup(name="ICQBot",
-      version = "0.0.6-alpha",
+      version = "0.1.0-beta",
       author="Kamuri Amorim",
       author_email='luiz.k.amorim@gmail.com',
       url="https://github.com/kamuridesu/ICQBotPy",

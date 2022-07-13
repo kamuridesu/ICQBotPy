@@ -1,6 +1,5 @@
 import typing
 
-from ..mapper.MessagesMapper import deleteMessage, editMessage
 from ..ext.parseModes import *
 from ..ext.Keyboards import InlineKeyboardMarkup
 from .payloads import *
@@ -21,13 +20,13 @@ class SentMessage(CustomDict):
         if 'forward_message_id' in message_data:
             self.forward_message_id = message_data['forward_message_id']
 
-    def edit(self, text: str, inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup(), formatting: Formatting=Formatting(), parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default()):
-        edited_message: dict[str, typing.Any] = self.bot_instance.editMessage(self.chat_id, self.message_id, text, inline_keyboard_markup, formatting, parse_mode)
+    async def edit(self, text: str, inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup(), formatting: Formatting=Formatting(), parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default()):
+        edited_message: dict[str, typing.Any] = await self.bot_instance.editMessage(self.chat_id, self.message_id, text, inline_keyboard_markup, formatting, parse_mode)
         self.chat_id = edited_message['chat_id']
         self.text = edited_message['text']
 
-    def delete(self) -> None:
-        deleted = self.bot_instance.deleteMessage(self.chat_id, self.message_id)
+    async def delete(self) -> None:
+        deleted = await self.bot_instance.deleteMessage(self.chat_id, self.message_id)
         if deleted:
             self.token = None
             self.endpoint = None
@@ -97,7 +96,5 @@ class ReceivedMessage(CustomDict):
         except Exception:
             pass
 
-    def reply(self, text: str="", forward_chat_id: str="", forward_message_id: str="", inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup(), formatting: Formatting=Formatting(), parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default()) -> SentMessage:
-        return self.bot_instance.sendText(self.chat_id, text, self.message_id, forward_chat_id, forward_message_id, inline_keyboard_markup, formatting, parse_mode)
-
-    
+    async def reply(self, text: str="", forward_chat_id: str="", forward_message_id: str="", inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup(), formatting: Formatting=Formatting(), parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default()) -> SentMessage:
+        return await self.bot_instance.sendText(self.chat_id, text, self.message_id, forward_chat_id, forward_message_id, inline_keyboard_markup, formatting, parse_mode)
