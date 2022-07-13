@@ -25,7 +25,6 @@ class Dispatcher:
         self.running_tasks = set()
 
     async def _pollingHandler(self, response: dict[typing.Any, typing.Any]):
-        print("called")
         # print(response)
         # print("----------", self._last_event_id)
         last_event_type = response['events'][-1]['type']

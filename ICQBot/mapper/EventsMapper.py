@@ -8,7 +8,6 @@ from ..ext.util import fetcher, Response
 
 
 async def getEvents(token: str, endpoint: str, last_event_id: int=0, poll_time: int=20) -> dict[typing.Any, typing.Any]:
-    print("get events")
     """
     Get events sent by the server
 
