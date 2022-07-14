@@ -7,6 +7,7 @@ An actually working ICQ bot framework
 	- [Example](https://github.com/kamuridesu/ICQBotPy/README.md#example)
 - [Current State](https://github.com/kamuridesu/ICQBotPy#current-state)
 - [TODO](https://github.com/kamuridesu/ICQBotPy#todo)
+- [NOTES](https://github.com/kamuridesu/ICQBotPy#notes)
 
 
 ## Purpose
@@ -23,7 +24,7 @@ You can install this framework with the command `pip install ICQBot`.
 ## Current state
 The bot does not implements full control of the ICQ new api yet, I'll try to map the other endpoints asap. The current implementations are:
 - Self:
-	- `​/self​/get`
+	- `/self/get`
 - Chats:
 	- `/chats/members/delete`
 	- `POST /chats/avatar/set`
@@ -46,7 +47,7 @@ The bot does not implements full control of the ICQ new api yet, I'll try to map
 	- `/messages/sendText`
 	- `/messages/editText`
 	- `/messages/answerCallbackQuery`
-	- `GET ​/messages​/sendFile`
+	- `GET /messages/sendFile`
 	- `POST /messages/sendFile`
 	- `GET /messages/sendVoice`
 	- `POST /messages/sendVoice`
@@ -62,3 +63,6 @@ The bot does not implements full control of the ICQ new api yet, I'll try to map
 ## TODO
 - Map all of the others endpoints
 - Use matches with regex or string match to search for terms in messages
+
+## Notes
+There's a known bug on aiohttp on windows that closes the event loop. I'm trying to fix this rn.
