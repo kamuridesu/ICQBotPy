@@ -5,7 +5,7 @@ import json
 from ..exceptions.GroupErrors import *
 from ..exceptions.GenericErrors import NotExpectedError
 from ..ext.parseModes import *
-from ..ext.Keyboards import *
+from ..ext.keyboards import *
 from ..ext.util import fetcher, Response
 
 
@@ -164,6 +164,17 @@ async def unpinMessage(token: str, endpoint: str, chat_id: str, message_id: str)
     if response.status == 200:
         return (await response.json())['ok']
     raise NotExpectedError("Algo deu errado! Verifique se o bot é admin!")
+
+
+async def sendAction(token: str, endpoint: str, chat_id: str, action: str) -> bool:
+    route = "/chats/sendActions?"
+    query = f"token={token}&chatId={chat_id}&action={action}"
+
+    response: Response = await fetcher("get", endpoint + route + query)
+
+    if response.status == 200:
+        return (await response.json())['ok']
+    raise NotExpectedError("Algo deu errado!")
 
 
 if __name__ == "__main__":

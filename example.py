@@ -1,7 +1,7 @@
 from ICQBot import ICQBot, Dispatcher, executor
 from ICQBot.messages import ReceivedMessage
 from ICQBot.messages.callback import Callback
-from ICQBot.ext.Keyboards import InlineKeyboardMarkup, Button
+from ICQBot.ext.keyboards import InlineKeyboardMarkup, Button
 
 
 bot = ICQBot("TOKEN")

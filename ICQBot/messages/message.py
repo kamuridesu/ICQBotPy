@@ -1,7 +1,9 @@
 import typing
 
+from ICQBot.ext.actions import Action
+
 from ..ext.parseModes import *
-from ..ext.Keyboards import InlineKeyboardMarkup
+from ..ext.keyboards import InlineKeyboardMarkup
 from .payloads import *
 from ..ext.util import CustomDict
 
@@ -20,8 +22,8 @@ class SentMessage(CustomDict):
         if 'forward_message_id' in message_data:
             self.forward_message_id = message_data['forward_message_id']
 
-    async def edit(self, text: str, inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup(), formatting: Formatting=Formatting(), parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default()):
-        edited_message: dict[str, typing.Any] = await self.bot_instance.editMessage(self.chat_id, self.message_id, text, inline_keyboard_markup, formatting, parse_mode)
+    async def edit(self, text: str, inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup(), formatting: Formatting=Formatting(), parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default(), action: typing.Union[None, Action]=None):
+        edited_message: dict[str, typing.Any] = await self.bot_instance.editMessage(self.chat_id, self.message_id, text, inline_keyboard_markup, formatting, parse_mode, action)
         self.chat_id = edited_message['chat_id']
         self.text = edited_message['text']
 
@@ -96,5 +98,5 @@ class ReceivedMessage(CustomDict):
         except Exception:
             pass
 
-    async def reply(self, text: str="", forward_chat_id: str="", forward_message_id: str="", inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup(), formatting: Formatting=Formatting(), parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default()) -> SentMessage:
-        return await self.bot_instance.sendText(self.chat_id, text, self.message_id, forward_chat_id, forward_message_id, inline_keyboard_markup, formatting, parse_mode)
+    async def reply(self, text: str="", action: typing.Union[Action, None] = None, forward_chat_id: str="", forward_message_id: str="", inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup(), formatting: Formatting=Formatting(), parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default()) -> SentMessage:
+        return await self.bot_instance.sendText(self.chat_id, text, self.message_id, forward_chat_id, forward_message_id, inline_keyboard_markup, formatting, parse_mode, action)
