@@ -22,7 +22,7 @@ class Dispatcher:
         self.filterRegistry = FiltersRegistry()
         self.messageHandlers = MessageHandlers(self.filterRegistry)
         self.callbackHandlers = CallbackHandlers(self.filterRegistry)
-        self.running_tasks = set()
+        self.running_tasks: set[asyncio.Task] = set()
 
     async def _pollingHandler(self, response: dict[typing.Any, typing.Any]):
         last_event_type = response['events'][-1]['type']
@@ -100,8 +100,10 @@ class Dispatcher:
             return function
         return decorator
 
-    def _stopPolling(self) -> None:
+    async def _stopPolling(self) -> None:
         self._is_polling = False
+        [t.cancel() for t in self.running_tasks]
+        [self.running_tasks.remove(t) for t in self.running_tasks]
 
 
 if __name__ == "__main__":

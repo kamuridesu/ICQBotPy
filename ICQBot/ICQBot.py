@@ -11,7 +11,7 @@ class ICQBot:
     def __init__(self, token: str) -> None:
         self.endpoint: str = "https://api.icq.net/bot/v1"
         self.token: str = token
-        if asyncio.run(verifyToken(self.token, self.endpoint)) is False:
+        if asyncio.get_event_loop().run_until_complete(verifyToken(self.token, self.endpoint)) is False:
             raise InvalidTokenError
         
     async def info(self) -> dict[str, typing.Any]:
