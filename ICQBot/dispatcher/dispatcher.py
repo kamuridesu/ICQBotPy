@@ -28,7 +28,6 @@ class Dispatcher:
         last_event_type = response['events'][-1]['type']
         if last_event_type == "newMessage":
             rc = (ReceivedMessage(response['events'][-1]['payload'], self._bot_instance))
-            print(rc)
             return await asyncio.gather(self.messageHandlers.handle(rc))
         if last_event_type == "callbackQuery":
             cb = Callback(response['events'][-1]['payload'], self._bot_instance)

@@ -31,11 +31,9 @@ class MessageHandlers:
         Handles a `ReceivedMessage` event and if it matches a filter, it executes the assigned function
         :param `message` the received message
         """
-        print("Entering handler")
         for _filter in self.filtersRegister.message_filters:
             for filters, function in _filter.items():
                 for f in filters:
-                    print(print(message.text))
                     if message.text.startswith(f):
                         return await function(message)
 
