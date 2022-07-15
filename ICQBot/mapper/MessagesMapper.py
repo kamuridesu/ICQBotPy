@@ -6,7 +6,7 @@ from ..exceptions.GenericErrors import NotExpectedError
 from ..exceptions.MessageErrors import MessageNotSentError, FileTypeMismatchError, AmbigousFileError, MessageNotDeletedError, CallbackAnswerError
 
 from ..ext.parseModes import Formatting, HtmlMarkup, Markdown
-from ..ext.Keyboards import InlineKeyboardMarkup
+from ..ext.keyboards import InlineKeyboardMarkup
 from ..ext.util import fetcher, Response
 
 

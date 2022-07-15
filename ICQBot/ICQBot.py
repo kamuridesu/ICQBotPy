@@ -16,11 +16,11 @@ class ICQBot:
         if asyncio.get_event_loop().run_until_complete(verifyToken(self.token, self.endpoint)) is False:
             raise InvalidTokenError
         
-    async def info(self) -> dict[str, typing.Any]:
+    def info(self) -> dict[str, typing.Any]:
         """
         :return dict with information about the bot
         """
-        return await getBotInfo(self.token, self.endpoint)
+        return asyncio.get_event_loop().run_until_complete(getBotInfo(self.token, self.endpoint))
 
     async def sendText(self, chat_id: str, text: str="", reply_message_id: str="", forward_chat_id: str="", forward_message_id: str="", inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup(), formatting: Formatting=Formatting(), parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default(), action: typing.Union[None, Action]=None) -> SentMessage:
         """
@@ -36,7 +36,7 @@ class ICQBot:
         :return: SentMessage object with the data of the sent message
         """
         if action is not None:
-            sendAction(self.token, self.endpoint, chat_id, action)
+            await sendAction(self.token, self.endpoint, chat_id, action)
         return SentMessage(await sendText(self.token, self.endpoint, chat_id, text, reply_message_id, forward_chat_id, forward_message_id, inline_keyboard_markup, formatting, parse_mode), self)
 
     async def editMessage(self, chat_id: str, message_id: str, text: str, inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup(), formatting: Formatting=Formatting(), parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default(), action: typing.Union[None, Action]=None) -> dict[str, typing.Any]:

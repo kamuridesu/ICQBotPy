@@ -2,7 +2,14 @@ from .util import CustomDict
 
 
 class Action(CustomDict):
-    def __init__(self, action:str) -> None:
-        if action.lower() not in ["looking", "typing"]:
-            raise TypeError("Action must be either 'looking' or 'typing'")
-        self.action = action.lower()
+    def __init__(self) -> None:
+        self._looking = "looking"
+        self._typing = "typing"
+
+    @property
+    def looking(self) -> str:
+        return self._looking
+
+    @property
+    def typing(self) -> str:
+        return self._typing
