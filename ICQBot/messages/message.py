@@ -100,3 +100,14 @@ class ReceivedMessage(CustomDict):
 
     async def reply(self, text: str="", action: typing.Union[Action, None] = None, forward_chat_id: str="", forward_message_id: str="", inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup(), formatting: Formatting=Formatting(), parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default()) -> SentMessage:
         return await self.bot_instance.sendText(self.chat_id, text, self.message_id, forward_chat_id, forward_message_id, inline_keyboard_markup, formatting, parse_mode, action)
+
+
+class DeletedMessage(CustomDict):
+    def __init__(self, message_data: dict) -> None:
+        self.message_id = message_data['msgId']
+        self.chat_id = message_data['chat']['chatId']
+        self.chat_type = message_data['chat']['type']
+        self.chat_title = "Private conversation"
+        if self.chat_type == "group":
+            self.chat_title = message_data['chat']['title']
+        self.timestamp = message_data['timestamp']
