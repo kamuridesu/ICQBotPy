@@ -53,7 +53,7 @@ class Dispatcher:
                     self.running_tasks.add(task)
                     task.add_done_callback(lambda t: self.running_tasks.remove(t))
             except KeyboardInterrupt:
-                self._stopPolling()
+                await self._stopPolling()
 
     def message_handler(self, commands: typing.Union[str, list[str]]=""):
         """
@@ -103,7 +103,8 @@ class Dispatcher:
     async def _stopPolling(self) -> None:
         self._is_polling = False
         [t.cancel() for t in self.running_tasks]
-        [self.running_tasks.remove(t) for t in self.running_tasks]
+        for t in self.running_tasks:
+            self.running_tasks.remove(t)
 
 
 if __name__ == "__main__":

@@ -118,7 +118,7 @@ async def sendFile(token: str, endpoint: str, chat_id: str, file: typing.Union[s
     if formatting.content:
         query += f"&format={formatting.content}"
     
-    response = uploadFile(endpoint, route, query, file_id, file)
+    response = await uploadFile(endpoint, route, query, file_id, file)
         
     if response.status == 200:
         response_dict: dict = (await response.json())
@@ -143,7 +143,7 @@ async def sendVoice(token: str, endpoint: str, chat_id: str, file: typing.Union[
     if inline_keyboard_markup.getButtonsAsString():
         query += f"&inlineKeyboardMarkup={inline_keyboard_markup.getButtonsAsString()}"
     
-    response = uploadFile(endpoint, route, query, file_id, file)
+    response = await uploadFile(endpoint, route, query, file_id, file)
         
     if response.status == 200:
         response_dict: dict = (await response.json())

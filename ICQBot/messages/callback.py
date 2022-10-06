@@ -26,5 +26,5 @@ class Callback(CustomDict):
         :return true if success else false"""
         url = ""
         if hasattr(self, 'url'):
-            url = self.url
+            url = self.url  # type: ignore
         return await answerCallbackQuery(self.bot_instance.token, self.bot_instance.endpoint, self.query_id, text, show_alert, url)

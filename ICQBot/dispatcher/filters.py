@@ -7,7 +7,7 @@ class FiltersRegistry:
     """
     def __init__(self):
         self.message_filters: list[dict[tuple, typing.Callable]] = []
-        self.callback_filters: list[dict[str, typing.Union[str, typing.Callable]]] = []
+        self.callback_filters: list[dict[str, typing.Union[str, typing.Callable, typing.Optional[str]]]] = []
 
     def registerMessageFilter(self, message_filters: tuple[str, ...], wrapped_function: typing.Callable) -> None:
         """

@@ -2,6 +2,7 @@ from ICQBot import ICQBot, Dispatcher, executor
 from ICQBot.messages import ReceivedMessage
 from ICQBot.messages.callback import Callback
 from ICQBot.ext.Keyboards import InlineKeyboardMarkup, Button
+from ICQBot.messages.payloads import FilePayload, StickerPayload
 
 
 bot = ICQBot("TOKEN")
@@ -9,17 +10,20 @@ dp = Dispatcher(bot)
 
 
 # to repeat a message
-@dp.message_handler(commands="/echo")
+@dp.message_handler()
 async def test(message: ReceivedMessage):
     print(message)
-    return message.reply(' '.join(message.text.split(' ')[1:]))
+    return message.reply(message.text)
 
 
 # to ban an user
 @dp.message_handler(commands=["/ban"])
 async def ban(message: ReceivedMessage):
-    user_to_ban = message.payloads[-1].payload.user_id
-    return print(bot.removeMembers(message.chat_id, user_to_ban))
+    classes_without_id: list = [StickerPayload, FilePayload, None, ReceivedMessage]
+    payload = message.payloads[-1].payload
+    if all([not isinstance(payload, x) for x in classes_without_id]):
+        user_to_ban = payload.user_id # type: ignore
+        return print(bot.removeMembers(message.chat_id, user_to_ban))
 
 
 # Keyboard

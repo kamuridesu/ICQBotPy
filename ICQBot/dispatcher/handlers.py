@@ -39,7 +39,7 @@ class MessageHandlers:
 
 
 class CallbackHandlers(MessageHandlers):
-    def register(self, context: str, function=typing.Callable, value: typing.Optional[str]="") -> None:
+    def register(self, context: str, function=typing.Callable, value: typing.Optional[str]="") -> None: # type: ignore
         """
         Register a filter to the filters registry
 
@@ -49,16 +49,21 @@ class CallbackHandlers(MessageHandlers):
         """
         self.filtersRegister.registerCallbackHandler(context, function, value)
 
-    async def handle(self, callback: Callback):
+    async def handle(self, callback: Callback): # type: ignore
         """
         Handles a callback query event and if it matches a filter, it executes the assigned function
         : param `callback`: the callback query
         """
+        func: typing.Union[typing.Callable, None] = None
         for _filter in self.filtersRegister.callback_filters:
             if _filter['context'] in callback and callback[_filter['context']] == _filter['value']:
-                return _filter['callable'](callback)
+                if not isinstance(_filter['callable'], str) and _filter['callable'] is not None:
+                    func = _filter['callable']
             elif _filter['context'] in callback and _filter["value"] == "":
-                return await _filter['callable'](callback)
+                if not isinstance(_filter['callable'], str) and _filter['callable'] is not None:
+                    func = _filter['callable']
+            if func is not None:
+                return func(callback)
             
 
 
