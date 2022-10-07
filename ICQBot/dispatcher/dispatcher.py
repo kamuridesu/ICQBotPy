@@ -4,9 +4,9 @@ import asyncio
 from ..ICQBot import ICQBot
 from ..mapper.EventsMapper import getEvents
 from ..exceptions.DispatcherErrors import *
-from ..messages.message import ReceivedMessage
+from ..messages.message import DeletedMessage, ReceivedMessage
 from ..messages.callback import Callback
-from .handlers import MessageHandlers, CallbackHandlers
+from .handlers import DeletedMessageHandlers, EditedMessageHandlers, MessageHandlers, CallbackHandlers
 from .filters import FiltersRegistry
 
 
@@ -22,6 +22,8 @@ class Dispatcher:
         self.filterRegistry = FiltersRegistry()
         self.messageHandlers = MessageHandlers(self.filterRegistry)
         self.callbackHandlers = CallbackHandlers(self.filterRegistry)
+        self.editedMessageHandlers = EditedMessageHandlers(self.filterRegistry)
+        self.deletedMessageHandlers = DeletedMessageHandlers(self.filterRegistry)
         self.running_tasks: set[asyncio.Task] = set()
 
     async def _pollingHandler(self, response: dict[typing.Any, typing.Any]):
@@ -32,6 +34,12 @@ class Dispatcher:
         if last_event_type == "callbackQuery":
             cb = Callback(response['events'][-1]['payload'], self._bot_instance)
             return await asyncio.gather(self.callbackHandlers.handle(cb))
+        if last_event_type == "editedMessage":
+            em = (ReceivedMessage(response['events'][-1]['payload'], self._bot_instance))
+            return await asyncio.gather(self.editedMessageHandlers.handle(em))
+        if last_event_type == "deletedMessage":
+            dm = (DeletedMessage(response['events'][-1]['payload']))
+            return await asyncio.gather(self.deletedMessageHandlers.handle(dm))
 
     async def start_polling(self, timeout: int=20) -> None:
         """
@@ -97,6 +105,48 @@ class Dispatcher:
         """
         def decorator(function: typing.Callable):
             self.callbackHandlers.register(context, function, str(value))
+            return function
+        return decorator
+
+    def edited_message_handler(self, commands: typing.Union[str, list[str]]=""):
+        """
+        Decorator for message handler
+
+        Examples:
+
+        Simple callback handler:
+
+            @dp.edited_message_handler(commands=['start', 'welcome', 'about'])
+
+            def cmd_handler(message: ReceivedMessage):
+        
+
+        :param `commands`: list of commands
+        :return: decorated function
+        """
+        def decorator(function: typing.Callable):
+            self.editedMessageHandlers.register(commands, function)
+            return function
+        return decorator
+
+    def deleted_message_handler(self):
+        """
+        Decorator for message handler
+
+        Examples:
+
+        Simple callback handler:
+
+            @dp.deleted_message_handler(commands=['start', 'welcome', 'about'])
+
+            def cmd_handler(message: ReceivedMessage):
+        
+
+        :param `commands`: list of commands
+        :return: decorated function
+        """
+        def decorator(function: typing.Callable):
+            self.deletedMessageHandlers.register(function)
             return function
         return decorator
 

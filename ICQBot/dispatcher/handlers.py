@@ -63,7 +63,61 @@ class CallbackHandlers(MessageHandlers):
                 if not isinstance(_filter['callable'], str) and _filter['callable'] is not None:
                     func = _filter['callable']
             if func is not None:
-                return func(callback)
+                return await func(callback)
+
+
+class EditedMessageHandlers(MessageHandlers):
+    """
+    Handles filter registration and matches
+    """
+
+    def register(self, message_filters: typing.Union[str, list[str]], function: typing.Callable) -> None:
+        """
+        Register a filter to the filters registry
+
+        :param `message_filters` message filters
+        :param `functoin` function to be executed on match
+        """
+        filters: list[str] = []
+        if isinstance(message_filters, list):
+            filters = (message_filters)
+        elif isinstance(message_filters, str):
+            filters.append(message_filters)
+        return self.filtersRegister.registerEditedMessageFilter(tuple(filters), function)
+
+    async def handle(self, message: ReceivedMessage):
+        """
+        Handles a `ReceivedMessage` event and if it matches a filter, it executes the assigned function
+        :param `message` the received message
+        """
+        for _filter in self.filtersRegister.edited_message_filters:
+            for filters, function in _filter.items():
+                for f in filters:
+                    if message.text.startswith(f):
+                        return await function(message)
+
+
+class DeletedMessageHandlers(MessageHandlers):
+    """
+    Handles filter registration and matches
+    """
+
+    def register(self, function: typing.Callable) -> None:
+        """
+        Register a filter to the filters registry
+
+        :param `message_filters` message filters
+        :param `functoin` function to be executed on match
+        """
+        return self.filtersRegister.registerDeleteddMessageFilter(function)
+
+    async def handle(self, message: ReceivedMessage):
+        """
+        Handles a `ReceivedMessage` event and if it matches a filter, it executes the assigned function
+        :param `message` the received message
+        """
+        for func in self.filtersRegister.deleted_message_filters:
+            return await func(message)
             
 
 

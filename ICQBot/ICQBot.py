@@ -1,5 +1,7 @@
 import asyncio
 
+from ICQBot.ext.actions import Action
+
 from .mapper.MessagesMapper import *
 from .ext.util import fetcher, Response
 from .mapper.ChatMapper import *
@@ -14,13 +16,13 @@ class ICQBot:
         if asyncio.get_event_loop().run_until_complete(verifyToken(self.token, self.endpoint)) is False:
             raise InvalidTokenError
         
-    async def info(self) -> dict[str, typing.Any]:
+    def info(self) -> dict[str, typing.Any]:
         """
         :return dict with information about the bot
         """
-        return await getBotInfo(self.token, self.endpoint)
+        return asyncio.get_event_loop().run_until_complete(getBotInfo(self.token, self.endpoint))
 
-    async def sendText(self, chat_id: str, text: str="", reply_message_id: str="", forward_chat_id: str="", forward_message_id: str="", inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup(), formatting: Formatting=Formatting(), parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default()) -> SentMessage:
+    async def sendText(self, chat_id: str, text: str="", reply_message_id: str="", forward_chat_id: str="", forward_message_id: str="", inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup(), formatting: Formatting=Formatting(), parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default(), action: typing.Union[None, Action]=None) -> SentMessage:
         """
         Sends a text message
         :param chat_id: the id of the chat
@@ -30,11 +32,14 @@ class ICQBot:
         :param inline_keyboard_markup: keyboard markup to use with callbacks
         :param formatting: Formating of the message
         :param parse_mode: Parsing mode (Markdown or HTML)
+        :param action: Action to be executed when the message sent
         :return: SentMessage object with the data of the sent message
         """
+        if action is not None:
+            await sendAction(self.token, self.endpoint, chat_id, action)
         return SentMessage(await sendText(self.token, self.endpoint, chat_id, text, reply_message_id, forward_chat_id, forward_message_id, inline_keyboard_markup, formatting, parse_mode), self)
 
-    async def editMessage(self, chat_id: str, message_id: str, text: str, inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup(), formatting: Formatting=Formatting(), parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default()) -> dict[str, typing.Any]:
+    async def editMessage(self, chat_id: str, message_id: str, text: str, inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup(), formatting: Formatting=Formatting(), parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default(), action: typing.Union[None, Action]=None) -> dict[str, typing.Any]:
         """
         Edits a text message
         :param chat_id: the id of the chat
@@ -43,8 +48,11 @@ class ICQBot:
         :param inline_keyboard_markup: keyboard markup to use with callbacks
         :param formatting: Formating of the message
         :param parse_mode: Parsing mode (Markdown or HTML)
+        :param action: Action to be executed when the message sent
         :return: object with the data of the sent message
         """
+        if action is not None:
+            sendAction(self.token, self.endpoint, chat_id, action)
         return await editMessage(self.token, self.endpoint, chat_id, message_id, text, inline_keyboard_markup, formatting, parse_mode)
 
     async def sendFile(self, chat_id: str, file: typing.Union[str, bytes, None]=None, file_id: str="", caption: str="", reply_message_id: str="", forward_chat_id: str="", forward_message_id: str="", inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup(), formatting: Formatting=Formatting(), parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default()) -> dict[str, str]:
