@@ -1,21 +1,26 @@
 import typing
-from copy import deepcopy
 import aiohttp
 import json
 import logging
 
 from ..exceptions.ClientErrors import ClientError
-from ..exceptions.GenericErrors import NotExpectedError
 from ..exceptions.ServerErrors import ServerError
 
 
 def initLogger():
-    logging.basicConfig(format='[%(asctime)s] p%(process)s {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s', datefmt='%m-%d %H:%M:%S', filename="ICQBot.log", level=logging.DEBUG)
+    logging.basicConfig(
+        format="[%(asctime)s] p%(process)s {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s",
+        datefmt="%m-%d %H:%M:%S",
+        filename="ICQBot.log",
+        level=logging.DEBUG,
+    )
     logger = logging.getLogger("icq")
     return logger
 
+
 class CustomDict(dict):
     logger = initLogger()
+
     def __setitem__(self, key, item):
         self.__dict__[key] = item
 
@@ -25,7 +30,7 @@ class CustomDict(dict):
     def __repr__(self):
         if hasattr(self, "bot_instance"):
             x = self.copy()
-            del x['bot_instance']
+            del x["bot_instance"]
             return repr(x)
         else:
             return repr(self.__dict__)
@@ -89,8 +94,10 @@ async def sendGetRequest(session: aiohttp.ClientSession, *args, **kwargs) -> Res
     response: typing.Union[Response, None] = None
     async with session.request("GET", *args, **kwargs) as resp:
         response = Response(resp.status, await resp.read())
-        if response.status in range(400, 499): raise ClientError
-        if response.status in range(500, 599): raise ServerError
+        if response.status in range(400, 499):
+            raise ClientError
+        if response.status in range(500, 599):
+            raise ServerError
     return response
 
 
@@ -104,6 +111,8 @@ async def sendPostRequest(session: aiohttp.ClientSession, *args, **kwargs) -> Re
     response: typing.Union[Response, None] = None
     async with session.request("POST", *args, **kwargs) as resp:
         response = Response(resp.status, await resp.read())
-        if response.status in range(400, 499): raise ClientError
-        if response.status in range(500, 599): raise ServerError
+        if response.status in range(400, 499):
+            raise ClientError
+        if response.status in range(500, 599):
+            raise ServerError
     return response
