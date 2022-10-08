@@ -7,23 +7,23 @@ from ..exceptions.MessageErrors import MessageNotSentError, FileTypeMismatchErro
 
 from ..ext.parseModes import Formatting, HtmlMarkup, Markdown
 from ..ext.keyboards import InlineKeyboardMarkup
-from ..ext.util import fetcher, Response
+from ..ext.util import sendGetRequest, sendPostRequest, Response
 
 
-async def getBotInfo(token: str, endpoint: str) -> dict[str, typing.Any]:
-    response: Response = await fetcher("get", endpoint + "/self/get?token=" + token)
+async def getBotInfo(session: aiohttp.ClientSession, token: str, endpoint: str) -> dict[str, typing.Any]:
+    response: Response = await sendGetRequest(session, endpoint + "/self/get?token=" + token)
 
     if response and response.status == 200:
         return (await response.json())
     raise NotExpectedError("Server response is empty or invalid!")
 
 
-async def verifyToken(token: str, endpoint: str) -> bool:
-    info: dict[str, typing.Any] = await getBotInfo(token, endpoint)
+async def verifyToken(session: aiohttp.ClientSession, token: str, endpoint: str) -> bool:
+    info: dict[str, typing.Any] = await getBotInfo(session, token, endpoint)
     return info['ok']
 
 
-async def sendText(token: str, endpoint: str, chat_id: str, text: str="", reply_message_id: str="", forward_chat_id: str="", forward_message_id: str="", inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup(), formatting: Formatting=Formatting(), parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default()) -> dict[str, str]:
+async def sendText(session: aiohttp.ClientSession, token: str, endpoint: str, chat_id: str, text: str="", reply_message_id: str="", forward_chat_id: str="", forward_message_id: str="", inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup(), formatting: Formatting=Formatting(), parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default()) -> dict[str, str]:
     route = "/messages/sendText?"
     query = f"token={token}&chatId={chat_id}&parseMode={parse_mode.content}"
     query += f"&text={text}"
@@ -37,7 +37,7 @@ async def sendText(token: str, endpoint: str, chat_id: str, text: str="", reply_
         query += f"&inlineKeyboardMarkup={inline_keyboard_markup.getButtonsAsString()}"
     if formatting.content:
         query += f"&format={formatting.content}"
-    response: Response = await fetcher("get", endpoint + route + query)
+    response: Response = await sendGetRequest(session, endpoint + route + query)
     if response.status == 200:
         response_dict: dict = (await response.json())
         if response_dict['ok']:
@@ -53,7 +53,7 @@ async def sendText(token: str, endpoint: str, chat_id: str, text: str="", reply_
     raise MessageNotSentError
 
 
-async def editMessage(token: str, endpoint: str, chat_id: str, message_id: str, text: str, inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup(), formatting: Formatting=Formatting(), parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default()) -> dict[str, typing.Any]:
+async def editMessage(session: aiohttp.ClientSession, token: str, endpoint: str, chat_id: str, message_id: str, text: str, inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup(), formatting: Formatting=Formatting(), parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default()) -> dict[str, typing.Any]:
     route = "/messages/editText?"
     query = f"&token={token}&chatId={chat_id}&msgId={message_id}&text={text}&parseMode={parse_mode.content}"
     if inline_keyboard_markup.getButtonsAsString():
@@ -61,7 +61,7 @@ async def editMessage(token: str, endpoint: str, chat_id: str, message_id: str, 
     if formatting.content:
         query += f"&format={formatting.content}"
 
-    response: Response = await fetcher("get", endpoint + route + query)
+    response: Response = await sendGetRequest(session, endpoint + route + query)
 
     if response.status == 200:
         response_dict: dict = (await response.json())
@@ -75,11 +75,11 @@ async def editMessage(token: str, endpoint: str, chat_id: str, message_id: str, 
     raise MessageNotSentError
 
 
-async def uploadFile(endpoint: str, route: str, query: str, file_id: typing.Union[str, None]=None, file: typing.Union[str, bytes, None]=None) -> Response:
+async def uploadFile(session, endpoint: str, route: str, query: str, file_id: typing.Union[str, None]=None, file: typing.Union[str, bytes, None]=None) -> Response:
     response: typing.Union[None, Response] = None
     if file_id:
         query += f"&fileId={file_id}"
-        response = await fetcher("get", endpoint + route + query)
+        response = await sendGetRequest(session, endpoint + route + query)
     elif file:
         content: typing.Union[dict[str, tuple[str, bytes]], None] = None
         if isinstance(file, bytes):
@@ -91,13 +91,13 @@ async def uploadFile(endpoint: str, route: str, query: str, file_id: typing.Unio
                 content = {'file': (os.path.basename(file), file_bytes.read())}
         if content is None:
             raise FileTypeMismatchError
-        response = await fetcher("post", endpoint + route + query, files=content)
+        response = await sendPostRequest(session, endpoint + route + query, files=content)
     if response is not None:
         return response
     raise NotExpectedError("File cannot be uploaded! Cause unknown")
 
 
-async def sendFile(token: str, endpoint: str, chat_id: str, file: typing.Union[str, bytes, None]=None, file_id: str="", caption: str="", reply_message_id: str="", forward_chat_id: str="", forward_message_id: str="", inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup(), formatting: Formatting=Formatting(), parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default()) -> dict[str, str]:
+async def sendFile(session: aiohttp.ClientSession, token: str, endpoint: str, chat_id: str, file: typing.Union[str, bytes, None]=None, file_id: str="", caption: str="", reply_message_id: str="", forward_chat_id: str="", forward_message_id: str="", inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup(), formatting: Formatting=Formatting(), parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default()) -> dict[str, str]:
     route = "/messages/sendFile?"
     query = f"token={token}&chatId={chat_id}&parseMode={parse_mode.content}"
     response: typing.Union[Response, None] = None
@@ -118,7 +118,7 @@ async def sendFile(token: str, endpoint: str, chat_id: str, file: typing.Union[s
     if formatting.content:
         query += f"&format={formatting.content}"
     
-    response = await uploadFile(endpoint, route, query, file_id, file)
+    response = await uploadFile(session, endpoint, route, query, file_id, file)
         
     if response.status == 200:
         response_dict: dict = (await response.json())
@@ -128,7 +128,7 @@ async def sendFile(token: str, endpoint: str, chat_id: str, file: typing.Union[s
     raise MessageNotSentError
 
 
-async def sendVoice(token: str, endpoint: str, chat_id: str, file: typing.Union[str, bytes, None]=None, file_id: str="", reply_message_id: str="", forward_chat_id: str="", forward_message_id: str="", inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup()) -> dict[str, typing.Any]:
+async def sendVoice(session: aiohttp.ClientSession, token: str, endpoint: str, chat_id: str, file: typing.Union[str, bytes, None]=None, file_id: str="", reply_message_id: str="", forward_chat_id: str="", forward_message_id: str="", inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup()) -> dict[str, typing.Any]:
     route = "/messages/sendVoice?"
     query = f"token={token}&chatId={chat_id}"
     response: typing.Union[Response, None] = None
@@ -143,7 +143,7 @@ async def sendVoice(token: str, endpoint: str, chat_id: str, file: typing.Union[
     if inline_keyboard_markup.getButtonsAsString():
         query += f"&inlineKeyboardMarkup={inline_keyboard_markup.getButtonsAsString()}"
     
-    response = await uploadFile(endpoint, route, query, file_id, file)
+    response = await uploadFile(session, endpoint, route, query, file_id, file)
         
     if response.status == 200:
         response_dict: dict = (await response.json())
@@ -153,27 +153,27 @@ async def sendVoice(token: str, endpoint: str, chat_id: str, file: typing.Union[
     raise MessageNotSentError
 
 
-async def getFileInfo(token: str, endpoint: str, file_id: str) -> dict[str, typing.Any]:
+async def getFileInfo(session: aiohttp.ClientSession, token: str, endpoint: str, file_id: str) -> dict[str, typing.Any]:
     route = "/files/getInfo?"
     query = f"token={token}&fileId={file_id}"
 
-    response: Response = await fetcher("get", endpoint + route + query)
+    response: Response = await sendGetRequest(session, endpoint + route + query)
 
     if response.status == 200:
         return (await response.json())
     raise FileNotFoundError
 
 
-async def deleteMessage(token: str, endpoint: str, chat_id: str, message_id: str) -> bool:
+async def deleteMessage(session: aiohttp.ClientSession, token: str, endpoint: str, chat_id: str, message_id: str) -> bool:
     route = "/messages/deleteMessages?"
     query = f"token={token}&chatId={chat_id}&msgId={message_id}"
-    response: Response = await fetcher("get", endpoint + route + query)
+    response: Response = await sendGetRequest(session, endpoint + route + query)
     if response.status == 200:
         return (await response.json())['ok']    
     raise MessageNotDeletedError
 
 
-async def answerCallbackQuery(token: str, endpoint: str, query_id: str, text: str="", show_alert: bool=False, url=""):
+async def answerCallbackQuery(session: aiohttp.ClientSession, token: str, endpoint: str, query_id: str, text: str="", show_alert: bool=False, url=""):
     route = "/messages/answerCallbackQuery?"
     query = f"token={token}&queryId={query_id}"
     if text:
@@ -183,7 +183,7 @@ async def answerCallbackQuery(token: str, endpoint: str, query_id: str, text: st
     if url:
         query += f"&url={url}"
 
-    response: Response = await fetcher("get", endpoint + route + query)
+    response: Response = await sendGetRequest(session, endpoint + route + query)
     if response.status == 200:
         return (await response.json())['ok']
     raise CallbackAnswerError

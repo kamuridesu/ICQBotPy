@@ -1,4 +1,5 @@
 import typing
+import aiohttp
 import asyncio
 
 from ..ICQBot import ICQBot
@@ -8,6 +9,7 @@ from ..messages.message import DeletedMessage, ReceivedMessage
 from ..messages.callback import Callback
 from .handlers import DeletedMessageHandlers, EditedMessageHandlers, MessageHandlers, CallbackHandlers
 from .filters import FiltersRegistry
+from ..ext.util import initLogger
 
 
 class Dispatcher:
@@ -15,8 +17,14 @@ class Dispatcher:
     Dispatcher to process and handles with events
     """
     def __init__(self, bot_instance: ICQBot) -> None:
-        if not isinstance(bot_instance, ICQBot): raise TypeError(f"Argument bot_instance must be Bot, not {type(bot_instance).__name__}!")
+        self.logger = initLogger()
+        if not isinstance(bot_instance, ICQBot):
+            err_msg: str = f"Argument bot_instance must be Bot, not {type(bot_instance).__name__}!"
+            self.logger.error(err_msg)
+            raise TypeError(err_msg)
         self._bot_instance = bot_instance
+        self._session = aiohttp.ClientSession()
+        self._bot_instance.setClientSession(self._session)
         self._is_polling = False
         self._last_event_id = 0
         self.filterRegistry = FiltersRegistry()
@@ -28,11 +36,7 @@ class Dispatcher:
 
     async def _pollingHandler(self, response: dict[typing.Any, typing.Any]):
         last_event_type = response['events'][-1]['type']
-        # print(response)
-        # print()
-        # print()
         if last_event_type == "newMessage":
-            print(response)
             rc = (ReceivedMessage(response['events'][-1]['payload'], self._bot_instance))
             return await asyncio.gather(self.messageHandlers.handle(rc))
         if last_event_type == "callbackQuery":
@@ -58,7 +62,7 @@ class Dispatcher:
 
         while self._is_polling:
             try:
-                updates = await getEvents(self._bot_instance.token, self._bot_instance.endpoint, self._last_event_id, pool_time)
+                updates = await getEvents(self._bot_instance.session, self._bot_instance.token, self._bot_instance.endpoint, self._last_event_id, pool_time)
                 if updates['events']:
                     self._last_event_id = updates['events'][-1]['eventId']
                     task = asyncio.create_task(self._pollingHandler(updates))
@@ -159,6 +163,20 @@ class Dispatcher:
         [t.cancel() for t in self.running_tasks]
         for t in self.running_tasks:
             self.running_tasks.remove(t)
+
+    async def __aenter__(self):
+        self.logger.debug("Entering context")
+        await self.session.__aenter__()
+        return self
+
+    async def __aexit__(self, exc_type, exc_val, tb):
+        if self.session:
+            self.logger.debug("Exit context")
+            await self.session.__aexit__(exc_type, exc_val, tb)
+    
+    async def close(self):
+        if self.session:
+            await self.session.close()
 
 
 if __name__ == "__main__":
