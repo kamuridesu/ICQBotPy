@@ -4,12 +4,12 @@ import asyncio
 from .exceptions.GenericErrors import NotExpectedError
 
 
-def executor(dp: Dispatcher, timeout: int=20):
+def executor(dp: Dispatcher, poll_time: int=20):
     if not isinstance(dp, Dispatcher):
         raise NotExpectedError(f"Expected a Dispatcher, got {type(dp).__name__}")
     loop = asyncio.get_event_loop()
     try:
-        loop.create_task(dp.start_polling(timeout))
+        loop.create_task(dp.start_polling(poll_time))
         loop.run_forever()
     except (KeyboardInterrupt, SystemExit):
         pass

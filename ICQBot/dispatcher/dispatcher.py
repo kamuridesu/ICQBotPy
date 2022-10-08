@@ -28,7 +28,11 @@ class Dispatcher:
 
     async def _pollingHandler(self, response: dict[typing.Any, typing.Any]):
         last_event_type = response['events'][-1]['type']
+        # print(response)
+        # print()
+        # print()
         if last_event_type == "newMessage":
+            print(response)
             rc = (ReceivedMessage(response['events'][-1]['payload'], self._bot_instance))
             return await asyncio.gather(self.messageHandlers.handle(rc))
         if last_event_type == "callbackQuery":
@@ -41,7 +45,7 @@ class Dispatcher:
             dm = (DeletedMessage(response['events'][-1]['payload']))
             return await asyncio.gather(self.deletedMessageHandlers.handle(dm))
 
-    async def start_polling(self, timeout: int=20) -> None:
+    async def start_polling(self, pool_time: int=20) -> None:
         """
         Start long-polling
         :param timeout:
@@ -54,7 +58,7 @@ class Dispatcher:
 
         while self._is_polling:
             try:
-                updates = await getEvents(self._bot_instance.token, self._bot_instance.endpoint, self._last_event_id, timeout)
+                updates = await getEvents(self._bot_instance.token, self._bot_instance.endpoint, self._last_event_id, pool_time)
                 if updates['events']:
                     self._last_event_id = updates['events'][-1]['eventId']
                     task = asyncio.create_task(self._pollingHandler(updates))
