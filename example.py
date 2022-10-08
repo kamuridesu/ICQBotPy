@@ -4,15 +4,15 @@ from ICQBot.messages.callback import Callback
 from ICQBot.ext.keyboards import InlineKeyboardMarkup, Button
 
 
-bot = ICQBot("002.0582144926.2128816916:1004298326")
+bot = ICQBot("TOKEN")
 dp = Dispatcher(bot)
 
 
 # to repeat a message
-# @dp.message_handler()
-# async def test(message: ReceivedMessage):
-#     print(message)
-#     return message.reply(message.text)
+@dp.message_handler()
+async def test(message: ReceivedMessage):
+    print(message)
+    return message.reply(message.text)
 
 
 # to ban an user
@@ -39,12 +39,6 @@ async def aaa(msg: DeletedMessage):
     return await bot.sendText(msg.chat_id, "deleted")
 
 
-
-@dp.message_handler(commands="/test")
-async def test(message: ReceivedMessage):
-    return await message.reply("Hello world!")
-
-
 # callback handlers
 @dp.callback_query_handler(context="callbackData", value="World")
 async def answer_world(callback: Callback):
@@ -54,7 +48,6 @@ async def answer_world(callback: Callback):
 
 @dp.callback_query_handler(context="callbackData", value="Ok")
 async def answer_ok(callback: Callback):
-    print(callback.message_data.chat_id)
     await bot.sendText(callback.message_data.chat_id, "Orayo")
     return await callback.answer("No")
 
