@@ -2,13 +2,20 @@ import typing
 from copy import deepcopy
 import aiohttp
 import json
+import logging
 
 from ..exceptions.ClientErrors import ClientError
 from ..exceptions.GenericErrors import NotExpectedError
 from ..exceptions.ServerErrors import ServerError
 
 
+def initLogger():
+    logging.basicConfig(format='[%(asctime)s] p%(process)s {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s', datefmt='%m-%d %H:%M:%S', filename="ICQBot.log", level=logging.DEBUG)
+    logger = logging.getLogger("icq")
+    return logger
+
 class CustomDict(dict):
+    logger = initLogger()
     def __setitem__(self, key, item):
         self.__dict__[key] = item
 
@@ -17,9 +24,9 @@ class CustomDict(dict):
 
     def __repr__(self):
         if hasattr(self, "bot_instance"):
-            x = deepcopy(self)
+            x = self.copy()
             del x['bot_instance']
-            return repr(x.__dict__)
+            return repr(x)
         else:
             return repr(self.__dict__)
 
@@ -72,25 +79,31 @@ class Response(CustomDict):
         return json.loads(self.content.decode("utf-8"))
 
 
-async def fetcher(get_post: str="get", *args, **kwargs):
+async def sendGetRequest(session: aiohttp.ClientSession, *args, **kwargs) -> Response:
     """
-    function to fetch data from endpoints
-    :param get_post: REST option (defaults to get)
-    :param *args and *kwargs to be used by session
+    Function to send a rest request and return the Response
+    :session A client session object from aiohttp
+    :param *args and *kwargs to be used on the request
     :return a Response object with the content of the endpoint
     """
     response: typing.Union[Response, None] = None
-    async with aiohttp.ClientSession() as session:
-        if get_post == "get":
-            async with session.get(*args, **kwargs) as _response:
-                response = Response(_response.status, await _response.read())
-        elif get_post == "post":
-            async with session.post(*args, **kwargs) as _response:
-                response = Response(_response.status, await _response.read())
-        else:
-            raise NotExpectedError
-        if response.status in range(500, 599):
-            raise ServerError
-        if response.status in range(400, 499):
-            raise ClientError
+    async with session.request("GET", *args, **kwargs) as resp:
+        response = Response(resp.status, await resp.read())
+        if response.status in range(400, 499): raise ClientError
+        if response.status in range(500, 599): raise ServerError
+    return response
+
+
+async def sendPostRequest(session: aiohttp.ClientSession, *args, **kwargs) -> Response:
+    """
+    Function to send a rest request and return the Response
+    :session A client session object from aiohttp
+    :param *args and *kwargs to be used on the request
+    :return a Response object with the content of the endpoint
+    """
+    response: typing.Union[Response, None] = None
+    async with session.request("POST", *args, **kwargs) as resp:
+        response = Response(resp.status, await resp.read())
+        if response.status in range(400, 499): raise ClientError
+        if response.status in range(500, 599): raise ServerError
     return response

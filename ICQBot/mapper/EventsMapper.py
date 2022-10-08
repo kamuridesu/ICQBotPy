@@ -3,11 +3,11 @@ import typing
 
 from ICQBot.exceptions.GenericErrors import NotExpectedError
 
-from ..ext.util import fetcher, Response
+from ..ext.util import Response, sendGetRequest
 
 
 
-async def getEvents(token: str, endpoint: str, last_event_id: int=0, poll_time: int=20) -> dict[typing.Any, typing.Any]:
+async def getEvents(session: aiohttp.ClientSession, token: str, endpoint: str, last_event_id: int=0, poll_time: int=20) -> dict[typing.Any, typing.Any]:
     """
     Get events sent by the server
 
@@ -22,7 +22,7 @@ async def getEvents(token: str, endpoint: str, last_event_id: int=0, poll_time: 
     """
     route = "/events/get?"
     query = f"token={token}&lastEventId={last_event_id}&pollTime={poll_time}"
-    response: Response = await fetcher("get", endpoint + route + query)
+    response: Response = await sendGetRequest(session, endpoint + route + query)
     if response.status == 200:
         return (await response.json())
     raise NotExpectedError

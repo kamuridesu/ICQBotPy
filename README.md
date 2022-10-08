@@ -26,7 +26,7 @@ You can install this framework with the command `pip install ICQBot`.
 
 ### Example
 
-[Checkout this example](example.py).
+[Checkout the wiki!](https://github.com/kamuridesu/ICQBotPy/wiki).
 
 ## Current state
 
