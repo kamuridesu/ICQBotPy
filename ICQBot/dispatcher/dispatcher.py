@@ -4,10 +4,15 @@ import asyncio
 
 from ..ICQBot import ICQBot
 from ..mapper.EventsMapper import getEvents
-from ..exceptions.DispatcherErrors import *
+from ..exceptions.DispatcherErrors import AlreadyPollingError
 from ..messages.message import DeletedMessage, ReceivedMessage
 from ..messages.callback import Callback
-from .handlers import DeletedMessageHandlers, EditedMessageHandlers, MessageHandlers, CallbackHandlers
+from .handlers import (
+    DeletedMessageHandlers,
+    EditedMessageHandlers,
+    MessageHandlers,
+    CallbackHandlers,
+)
 from .filters import FiltersRegistry
 from ..ext.util import initLogger
 
@@ -16,10 +21,13 @@ class Dispatcher:
     """
     Dispatcher to process and handles with events
     """
+
     def __init__(self, bot_instance: ICQBot) -> None:
         self.logger = initLogger()
         if not isinstance(bot_instance, ICQBot):
-            err_msg: str = f"Argument bot_instance must be Bot, not {type(bot_instance).__name__}!"
+            err_msg: str = (
+                f"Argument bot_instance must be Bot, not {type(bot_instance).__name__}!"
+            )
             self.logger.error(err_msg)
             raise TypeError(err_msg)
         self._bot_instance = bot_instance
@@ -35,21 +43,21 @@ class Dispatcher:
         self.running_tasks: set[asyncio.Task] = set()
 
     async def _pollingHandler(self, response: dict[typing.Any, typing.Any]):
-        last_event_type = response['events'][-1]['type']
+        last_event_type = response["events"][-1]["type"]
         if last_event_type == "newMessage":
-            rc = (ReceivedMessage(response['events'][-1]['payload'], self._bot_instance))
+            rc = ReceivedMessage(response["events"][-1]["payload"], self._bot_instance)
             return await asyncio.gather(self.messageHandlers.handle(rc))
         if last_event_type == "callbackQuery":
-            cb = Callback(response['events'][-1]['payload'], self._bot_instance)
+            cb = Callback(response["events"][-1]["payload"], self._bot_instance)
             return await asyncio.gather(self.callbackHandlers.handle(cb))
         if last_event_type == "editedMessage":
-            em = (ReceivedMessage(response['events'][-1]['payload'], self._bot_instance))
+            em = ReceivedMessage(response["events"][-1]["payload"], self._bot_instance)
             return await asyncio.gather(self.editedMessageHandlers.handle(em))
         if last_event_type == "deletedMessage":
-            dm = (DeletedMessage(response['events'][-1]['payload']))
+            dm = DeletedMessage(response["events"][-1]["payload"])
             return await asyncio.gather(self.deletedMessageHandlers.handle(dm))
 
-    async def start_polling(self, pool_time: int=20) -> None:
+    async def start_polling(self, pool_time: int = 20) -> None:
         """
         Start long-polling
         :param timeout:
@@ -62,16 +70,22 @@ class Dispatcher:
 
         while self._is_polling:
             try:
-                updates = await getEvents(self._bot_instance.session, self._bot_instance.token, self._bot_instance.endpoint, self._last_event_id, pool_time)
-                if updates['events']:
-                    self._last_event_id = updates['events'][-1]['eventId']
+                updates = await getEvents(
+                    self._bot_instance.session,
+                    self._bot_instance.token,
+                    self._bot_instance.endpoint,
+                    self._last_event_id,
+                    pool_time,
+                )
+                if updates["events"]:
+                    self._last_event_id = updates["events"][-1]["eventId"]
                     task = asyncio.create_task(self._pollingHandler(updates))
                     self.running_tasks.add(task)
                     task.add_done_callback(lambda t: self.running_tasks.remove(t))
             except KeyboardInterrupt:
                 await self._stopPolling()
 
-    def message_handler(self, commands: typing.Union[str, list[str]]=""):
+    def message_handler(self, commands: typing.Union[str, list[str]] = ""):
         """
         Decorator for message handler
 
@@ -82,14 +96,16 @@ class Dispatcher:
             @dp.message_handler(commands=['start', 'welcome', 'about'])
 
             def cmd_handler(message: ReceivedMessage):
-        
+
 
         :param `commands`: list of commands
         :return: decorated function
         """
+
         def decorator(function: typing.Callable):
             self.messageHandlers.register(commands, function)
             return function
+
         return decorator
 
     def callback_query_handler(self, context: str, value: typing.Any = ""):
@@ -102,7 +118,7 @@ class Dispatcher:
 
             @dp.callback_query_handler(context="callbackData")
             def callback_handler(callback: Callback):
-        
+
         Callback handler to trigger when a specified value is used
 
             @dp.callback_query_handler(context="callbackData", value="hello")
@@ -111,12 +127,14 @@ class Dispatcher:
         :param `commands`: list of commands
         :return: decorated function
         """
+
         def decorator(function: typing.Callable):
             self.callbackHandlers.register(context, function, str(value))
             return function
+
         return decorator
 
-    def edited_message_handler(self, commands: typing.Union[str, list[str]]=""):
+    def edited_message_handler(self, commands: typing.Union[str, list[str]] = ""):
         """
         Decorator for message handler
 
@@ -127,14 +145,16 @@ class Dispatcher:
             @dp.edited_message_handler(commands=['start', 'welcome', 'about'])
 
             def cmd_handler(message: ReceivedMessage):
-        
+
 
         :param `commands`: list of commands
         :return: decorated function
         """
+
         def decorator(function: typing.Callable):
             self.editedMessageHandlers.register(commands, function)
             return function
+
         return decorator
 
     def deleted_message_handler(self):
@@ -148,14 +168,16 @@ class Dispatcher:
             @dp.deleted_message_handler(commands=['start', 'welcome', 'about'])
 
             def cmd_handler(message: ReceivedMessage):
-        
+
 
         :param `commands`: list of commands
         :return: decorated function
         """
+
         def decorator(function: typing.Callable):
             self.deletedMessageHandlers.register(function)
             return function
+
         return decorator
 
     async def _stopPolling(self) -> None:
@@ -173,7 +195,7 @@ class Dispatcher:
         if self.session:
             self.logger.debug("Exit context")
             await self.session.__aexit__(exc_type, exc_val, tb)
-    
+
     async def close(self):
         if self.session:
             await self.session.close()

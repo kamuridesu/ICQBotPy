@@ -1,7 +1,3 @@
-import typing
-import json
-
-
 class GenericMarkup:
     def __init__(self, content: str) -> None:
         self.content = content

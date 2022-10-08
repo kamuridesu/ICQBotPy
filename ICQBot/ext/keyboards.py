@@ -13,6 +13,7 @@ class InlineKeyboardMarkup:
     Calls an callback when pressed
     Supports Rows and Columns
     """
+
     def __init__(self) -> None:
         self.components: list[list[Button]] = [[]]
 
@@ -42,7 +43,7 @@ class InlineKeyboardMarkup:
             print("---------------------")
             for y in x:
                 print("|", end="")
-                print(y['text'], end="|")
+                print(y["text"], end="|")
             print()
 
     @property

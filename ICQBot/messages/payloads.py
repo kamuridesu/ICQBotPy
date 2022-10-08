@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from ..ext.util import CustomDict
 
+
 @dataclass
 class FilePayload(CustomDict):
     file_id: str

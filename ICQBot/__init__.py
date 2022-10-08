@@ -1,12 +1,11 @@
 from .dispatcher import Dispatcher
 from .ICQBot import ICQBot
-import aiohttp
 import asyncio
 from .exceptions.GenericErrors import NotExpectedError
 from .ext.util import initLogger
 
 
-def executor(dp: Dispatcher, poll_time: int=20):
+def executor(dp: Dispatcher, poll_time: int = 20):
     logger = initLogger()
     if not isinstance(dp, Dispatcher):
         err_msg: str = f"Expected a Dispatcher, got {type(dp).__name__}"

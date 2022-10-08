@@ -1,5 +1,5 @@
 from ICQBot import ICQBot, Dispatcher, executor
-from ICQBot.messages import ReceivedMessage, DeletedMessage
+from ICQBot.messages import ReceivedMessage
 from ICQBot.messages.callback import Callback
 from ICQBot.ext.keyboards import InlineKeyboardMarkup, Button
 
@@ -9,17 +9,18 @@ dp = Dispatcher(bot)
 
 
 # to repeat a message
-@dp.message_handler(commands="")
+@dp.message_handler()
 async def test(message: ReceivedMessage):
-    return message.reply(message.text)
+    # print(message)
+    return await message.reply(message.text)
 
 
 # to ban an user
 @dp.message_handler(commands=["/ban"])
 async def ban(message: ReceivedMessage):
     payload = message.payloads[-1].payload
-    user_to_ban = payload.user_id # type: ignore
-    return print(bot.removeMembers(message.chat_id, user_to_ban))
+    user_to_ban = payload.user_id  # type: ignore
+    return print(await bot.removeMembers(message.chat_id, user_to_ban))
 
 
 # Keyboard
@@ -36,7 +37,7 @@ async def start(message: ReceivedMessage):
 @dp.callback_query_handler(context="callbackData", value="World")
 async def answer_world(callback: Callback):
     await bot.sendText(callback.message_data.chat_id, "Nyahello")
-    return await callback.answer(f"Hello " + callback.callbackData)
+    return await callback.answer(f"Hello {callback.callbackData}")
 
 
 @dp.callback_query_handler(context="callbackData", value="Ok")
