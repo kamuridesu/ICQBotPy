@@ -9,9 +9,10 @@ dp = Dispatcher(bot)
 
 
 # to repeat a message
-@dp.message_handler(commands="")
+@dp.message_handler()
 async def test(message: ReceivedMessage):
-    return message.reply(message.text)
+    # print(message)
+    return await message.reply(message.text)
 
 
 # to ban an user
@@ -19,7 +20,7 @@ async def test(message: ReceivedMessage):
 async def ban(message: ReceivedMessage):
     payload = message.payloads[-1].payload
     user_to_ban = payload.user_id  # type: ignore
-    return print(bot.removeMembers(message.chat_id, user_to_ban))
+    return print(await bot.removeMembers(message.chat_id, user_to_ban))
 
 
 # Keyboard
