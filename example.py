@@ -9,9 +9,8 @@ dp = Dispatcher(bot)
 
 
 # to repeat a message
-@dp.message_handler()
+@dp.message_handler(commands="")
 async def test(message: ReceivedMessage):
-    print(message)
     return message.reply(message.text)
 
 
@@ -31,12 +30,6 @@ async def start(message: ReceivedMessage):
     keyboard.addRow()
     keyboard.addButton(Button(text="Bye", callbackData="Ok"), row=1)
     return await message.reply("Ola", inline_keyboard_markup=keyboard)
-
-
-@dp.deleted_message_handler()
-async def aaa(msg: DeletedMessage):
-    print(msg)
-    return await bot.sendText(msg.chat_id, "deleted")
 
 
 # callback handlers

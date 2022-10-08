@@ -31,11 +31,18 @@ class MessageHandlers:
         Handles a `ReceivedMessage` event and if it matches a filter, it executes the assigned function
         :param `message` the received message
         """
+        global_catcher: typing.Union[typing.Callable, None] = None
         for _filter in self.filtersRegister.message_filters:
             for filters, function in _filter.items():
                 for f in filters:
-                    if message.text.startswith(f):
+                    if message.text.startswith(f) and f != '':
                         return await function(message)
+                    elif f == '':
+                        global_catcher = function
+        if global_catcher is not None:
+            await global_catcher(message)
+
+                        
 
 
 class CallbackHandlers(MessageHandlers):

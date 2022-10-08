@@ -96,7 +96,6 @@ class ReceivedMessage(CustomDict):
                 self.payloads.append(payload)
         except Exception:
             pass
-        print(self)
 
     async def reply(self, text: str="", action: typing.Union[Action, None] = None, forward_chat_id: str="", forward_message_id: str="", inline_keyboard_markup: InlineKeyboardMarkup=InlineKeyboardMarkup(), formatting: Formatting=Formatting(), parse_mode: typing.Union[Markdown, HtmlMarkup]=Markdown.default()) -> SentMessage:
         return await self.bot_instance.sendText(self.chat_id, text, self.message_id, forward_chat_id, forward_message_id, inline_keyboard_markup, formatting, parse_mode, action)
