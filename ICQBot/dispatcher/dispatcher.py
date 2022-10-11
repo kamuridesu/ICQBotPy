@@ -14,7 +14,6 @@ from .handlers import (
     CallbackHandlers,
 )
 from .filters import FiltersRegistry
-from ..ext.util import initLogger
 
 
 class Dispatcher:
@@ -23,7 +22,6 @@ class Dispatcher:
     """
 
     def __init__(self, bot_instance: ICQBot) -> None:
-        self.logger = initLogger()
         if not isinstance(bot_instance, ICQBot):
             err_msg: str = (
                 f"Argument bot_instance must be Bot, not {type(bot_instance).__name__}!"
@@ -183,8 +181,7 @@ class Dispatcher:
     async def _stopPolling(self) -> None:
         self._is_polling = False
         [t.cancel() for t in self.running_tasks]
-        for t in self.running_tasks:
-            self.running_tasks.remove(t)
+        self.running_tasks = set()
 
     async def __aenter__(self):
         self.logger.debug("Entering context")

@@ -2,7 +2,6 @@ import typing
 
 from ICQBot.ext.actions import Action
 
-from ..ext.parseModes import Markdown, HtmlMarkup, Formatting
 from ..ext.keyboards import InlineKeyboardMarkup
 from .payloads import MentionPayload, FilePayload, StickerPayload
 from ..ext.util import CustomDict
@@ -26,10 +25,10 @@ class SentMessage(CustomDict):
         self,
         text: str,
         inline_keyboard_markup: InlineKeyboardMarkup = InlineKeyboardMarkup(),
-        formatting: Formatting = Formatting(),
-        parse_mode: typing.Union[Markdown, HtmlMarkup] = Markdown.default(),
+        formatting: str = None,
+        parse_mode: str = "MarkdownV2",
         action: typing.Union[None, Action] = None,
-    ):
+    ) -> None:
         edited_message: dict[str, typing.Any] = await self.bot_instance.editMessage(
             self.chat_id,
             self.message_id,
@@ -121,8 +120,8 @@ class ReceivedMessage(CustomDict):
         forward_chat_id: str = "",
         forward_message_id: str = "",
         inline_keyboard_markup: InlineKeyboardMarkup = InlineKeyboardMarkup(),
-        formatting: Formatting = Formatting(),
-        parse_mode: typing.Union[Markdown, HtmlMarkup] = Markdown.default(),
+        formatting: str = None,
+        parse_mode: str = "MarkdownV2",
     ) -> SentMessage:
         return await self.bot_instance.sendText(
             self.chat_id,

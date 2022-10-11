@@ -26,3 +26,11 @@ class InvalidTokenError(UnauthorizedError):
         message: str = "Please, check if your token is valid and try again or generate a new one!",
     ) -> None:
         super().__init__(message)
+
+
+class UnknownParseModeError(ClientError):
+    def __init__(
+        self,
+        message: str = "Parse mode not recognized! Supported parse modes: MarkdownV2, HTML",
+    ) -> None:
+        super().__init__(message)

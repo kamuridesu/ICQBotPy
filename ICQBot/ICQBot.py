@@ -12,7 +12,7 @@ from .mapper.MessagesMapper import (
     getFileInfo,
     sendVoice,
 )
-from .ext.util import Response, initLogger, sendGetRequest
+from .ext.util import Response, sendGetRequest
 from .mapper.ChatMapper import (
     sendAction,
     removeMembers,
@@ -33,13 +33,11 @@ from .mapper.ChatMapper import (
 from .messages.message import SentMessage
 from .exceptions.ClientErrors import InvalidTokenError
 from .ext.keyboards import InlineKeyboardMarkup
-from .ext.parseModes import Markdown, HtmlMarkup, Formatting
 
 
 class ICQBot:
     def __init__(self, token: str) -> None:
         self.endpoint: str = "https://api.icq.net/bot/v1"
-        self.logger = initLogger()
         self.token: str = token
 
     def setClientSession(self, session: aiohttp.ClientSession):
@@ -69,8 +67,8 @@ class ICQBot:
         forward_chat_id: str = "",
         forward_message_id: str = "",
         inline_keyboard_markup: InlineKeyboardMarkup = InlineKeyboardMarkup(),
-        formatting: Formatting = Formatting(),
-        parse_mode: typing.Union[Markdown, HtmlMarkup] = Markdown.default(),
+        formatting: str = None,
+        parse_mode: str = "MarkdownV2",
         action: typing.Union[None, Action] = None,
     ) -> SentMessage:
         """
@@ -81,7 +79,7 @@ class ICQBot:
         :param forward_chat_id: the id of the chat where the message can be fw
         :param inline_keyboard_markup: keyboard markup to use with callbacks
         :param formatting: Formating of the message
-        :param parse_mode: Parsing mode (Markdown or HTML)
+        :param parse_mode: Parsing mode (MarkdownV2 or HTML)
         :param action: Action to be executed when the message sent
         :return: SentMessage object with the data of the sent message
         """
@@ -110,8 +108,8 @@ class ICQBot:
         message_id: str,
         text: str,
         inline_keyboard_markup: InlineKeyboardMarkup = InlineKeyboardMarkup(),
-        formatting: Formatting = Formatting(),
-        parse_mode: typing.Union[Markdown, HtmlMarkup] = Markdown.default(),
+        formatting: str = None,
+        parse_mode: str = "MarkdownV2",
         action: typing.Union[None, Action] = None,
     ) -> dict[str, typing.Any]:
         """
@@ -121,7 +119,7 @@ class ICQBot:
         :param forward_chat_id: the if of the chat where the message can be fw
         :param inline_keyboard_markup: keyboard markup to use with callbacks
         :param formatting: Formating of the message
-        :param parse_mode: Parsing mode (Markdown or HTML)
+        :param parse_mode: Parsing mode (MarkdownV2 or HTML)
         :param action: Action to be executed when the message sent
         :return: object with the data of the sent message
         """
@@ -149,8 +147,8 @@ class ICQBot:
         forward_chat_id: str = "",
         forward_message_id: str = "",
         inline_keyboard_markup: InlineKeyboardMarkup = InlineKeyboardMarkup(),
-        formatting: Formatting = Formatting(),
-        parse_mode: typing.Union[Markdown, HtmlMarkup] = Markdown.default(),
+        formatting: str = None,
+        parse_mode: str = "MarkdownV2",
     ) -> dict[str, str]:
         return await sendFile(
             self.session,

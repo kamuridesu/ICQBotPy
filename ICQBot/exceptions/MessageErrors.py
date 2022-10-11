@@ -31,3 +31,11 @@ class FileTypeMismatchError(MessageNotSentError):
 class CallbackAnswerError(MessageNotSentError):
     def __init__(self, message: str = "Cannot answer callback! Try again!") -> None:
         super().__init__(message)
+
+
+class MultipleFormattingError(MessageNotSentError):
+    def __init__(
+        self,
+        message: str = "Cannot use a parse mode and formatting at the same time! Please pick one!",
+    ):
+        super().__init__(message)

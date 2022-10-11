@@ -9,11 +9,11 @@ from ..exceptions.MessageErrors import (
     AmbigousFileError,
     MessageNotDeletedError,
     CallbackAnswerError,
+    MultipleFormattingError,
 )
 
-from ..ext.parseModes import Formatting, HtmlMarkup, Markdown
 from ..ext.keyboards import InlineKeyboardMarkup
-from ..ext.util import sendGetRequest, sendPostRequest, Response
+from ..ext.util import sendGetRequest, sendPostRequest, Response, checkParseMode
 
 
 async def getBotInfo(
@@ -45,11 +45,15 @@ async def sendText(
     forward_chat_id: str = "",
     forward_message_id: str = "",
     inline_keyboard_markup: InlineKeyboardMarkup = InlineKeyboardMarkup(),
-    formatting: Formatting = Formatting(),
-    parse_mode: typing.Union[Markdown, HtmlMarkup] = Markdown.default(),
+    formatting: str = "None",
+    parse_mode: str = "MarkdownV2",
 ) -> dict[str, str]:
     route = "/messages/sendText?"
-    query = f"token={token}&chatId={chat_id}&parseMode={parse_mode.content}"
+    if formatting and parse_mode:
+        raise MultipleFormattingError
+    if not formatting:
+        checkParseMode(parse_mode)
+    query = f"token={token}&chatId={chat_id}&parseMode={parse_mode}"
     query += f"&text={text}"
     if reply_message_id:
         query += f"&replyMsgId={reply_message_id}"
@@ -59,8 +63,8 @@ async def sendText(
         query += f"&forwardMsgId={forward_message_id}"
     if button := inline_keyboard_markup.getButtonsAsString():
         query += f"&inlineKeyboardMarkup={button}"
-    if formatting.content:
-        query += f"&format={formatting.content}"
+    if formatting:
+        query += f"&format={formatting}"
     response: Response = await sendGetRequest(session, endpoint + route + query)
     if response.status == 200:
         response_dict: dict = await response.json()
@@ -87,18 +91,22 @@ async def editMessage(
     message_id: str,
     text: str,
     inline_keyboard_markup: InlineKeyboardMarkup = InlineKeyboardMarkup(),
-    formatting: Formatting = Formatting(),
-    parse_mode: typing.Union[Markdown, HtmlMarkup] = Markdown.default(),
+    formatting: str = None,
+    parse_mode: str = "MarkdownV2",
 ) -> dict[str, typing.Any]:
     route = "/messages/editText?"
+    if formatting and parse_mode:
+        raise MultipleFormattingError
+    if not formatting:
+        checkParseMode(parse_mode)
     query = (
         f"&token={token}&chatId={chat_id}&msgId="
-        + f"{message_id}&text={text}&parseMode={parse_mode.content}"
+        + f"{message_id}&text={text}&parseMode={parse_mode}"
     )
     if button := inline_keyboard_markup.getButtonsAsString():
         query += f"&inlineKeyboardMarkup={button}"
-    if formatting.content:
-        query += f"&format={formatting.content}"
+    if formatting:
+        query += f"&format={formatting}"
 
     response: Response = await sendGetRequest(session, endpoint + route + query)
 
@@ -159,11 +167,15 @@ async def sendFile(
     forward_chat_id: str = "",
     forward_message_id: str = "",
     inline_keyboard_markup: InlineKeyboardMarkup = InlineKeyboardMarkup(),
-    formatting: Formatting = Formatting(),
-    parse_mode: typing.Union[Markdown, HtmlMarkup] = Markdown.default(),
+    formatting: str = None,
+    parse_mode: str = "MarkdownV2",
 ) -> dict[str, str]:
     route = "/messages/sendFile?"
-    query = f"token={token}&chatId={chat_id}&parseMode={parse_mode.content}"
+    if formatting and parse_mode:
+        raise MultipleFormattingError
+    if not formatting:
+        checkParseMode(parse_mode)
+    query = f"token={token}&chatId={chat_id}&parseMode={parse_mode}"
     response: typing.Union[Response, None] = None
     if file_id and file:
         raise AmbigousFileError
@@ -179,8 +191,8 @@ async def sendFile(
         query += f"&forwardMsgId={forward_message_id}"
     if button := inline_keyboard_markup.getButtonsAsString():
         query += f"&inlineKeyboardMarkup={button}"
-    if formatting.content:
-        query += f"&format={formatting.content}"
+    if formatting:
+        query += f"&format={formatting}"
 
     response = await uploadFile(session, endpoint, route, query, file_id, file)
 

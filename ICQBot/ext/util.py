@@ -3,24 +3,17 @@ import aiohttp
 import json
 import logging
 
-from ..exceptions.ClientErrors import ClientError
+from ..exceptions.ClientErrors import ClientError, UnknownParseModeError
 from ..exceptions.ServerErrors import ServerError
 
 
-def initLogger():
-    logging.basicConfig(
-        format="[%(asctime)s] p%(process)s {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s",
-        datefmt="%m-%d %H:%M:%S",
-        filename="ICQBot.log",
-        level=logging.DEBUG,
-    )
-    logger = logging.getLogger("icq")
-    return logger
+def checkParseMode(parse_mode: str) -> bool:
+    if parse_mode in ["MarkdownV2", "HTML"]:
+        return True
+    raise UnknownParseModeError
 
 
 class CustomDict(dict):
-    logger = initLogger()
-
     def __setitem__(self, key, item):
         self.__dict__[key] = item
 
@@ -92,8 +85,10 @@ async def sendGetRequest(session: aiohttp.ClientSession, *args, **kwargs) -> Res
     :return a Response object with the content of the endpoint
     """
     response: typing.Union[Response, None] = None
+    # print(*args)
     async with session.request("GET", *args, **kwargs) as resp:
         response = Response(resp.status, await resp.read())
+        # print(response)
         if response.status in range(400, 499):
             raise ClientError
         if response.status in range(500, 599):
@@ -116,3 +111,8 @@ async def sendPostRequest(session: aiohttp.ClientSession, *args, **kwargs) -> Re
         if response.status in range(500, 599):
             raise ServerError
     return response
+
+
+class Formatting:
+    def __init__(self) -> None:
+        self.format = {}
