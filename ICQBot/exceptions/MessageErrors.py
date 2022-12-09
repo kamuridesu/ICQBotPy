@@ -42,14 +42,10 @@ class MultipleFormattingError(MessageNotSentError):
 
 
 class AlreadyPinnedError(MessageNotSentError):
-    def __init__(
-        self, message: str = "The message is already pinned!"
-    ) -> None:
+    def __init__(self, message: str = "The message is already pinned!") -> None:
         super().__init__(message)
 
 
 class NotPinnedError(MessageNotSentError):
-    def __init__(
-        self, message: str = "The message is not pinned!"
-    ) -> None:
+    def __init__(self, message: str = "The message is not pinned!") -> None:
         super().__init__(message)

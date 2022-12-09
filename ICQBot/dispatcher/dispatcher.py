@@ -58,7 +58,9 @@ class Dispatcher:
             return await asyncio.gather(self.deletedMessageHandlers.handle(dm))
         if last_event_type in ["pinnedMessage", "unpinnedMessage"]:
             pinned = True if last_event_type == "pinnedMessage" else False
-            pm = PinnedMessage(response["events"][-1]["payload"], self._bot_instance, pinned)
+            pm = PinnedMessage(
+                response["events"][-1]["payload"], self._bot_instance, pinned
+            )
             return await asyncio.gather(self.pinnedMessageHandlers.handle(pm))
 
     async def start_polling(self, pool_time: int = 20) -> None:
