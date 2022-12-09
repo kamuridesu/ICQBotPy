@@ -6,6 +6,8 @@ from ..ext.keyboards import InlineKeyboardMarkup
 from .payloads import MentionPayload, FilePayload, StickerPayload
 from ..ext.util import CustomDict
 
+from ..exceptions.MessageErrors import AlreadyPinnedError, NotPinnedError
+
 
 class SentMessage(CustomDict):
     def __init__(self, message_data: dict, bot_instance) -> None:
@@ -97,7 +99,7 @@ class ReceivedMessage(CustomDict):
         self.chat_title: str = "Private conversation"
         if self.chat_type == "group":
             self.chat_title = message_data["chat"]["title"]
-        self.author: Author = Author(message_data["from"])
+        self.author: Author = Author(message_data.get("from", "unknown"))
         self.message_id: str = message_data["msgId"]
         self.text: str = ""
         try:
@@ -145,3 +147,28 @@ class DeletedMessage(CustomDict):
         if self.chat_type == "group":
             self.chat_title = message_data["chat"]["title"]
         self.timestamp = message_data["timestamp"]
+
+
+class PinnedMessage(ReceivedMessage):
+    def __init__(self, message_data: dict, bot_instance, pinned: bool) -> None:
+        super().__init__(message_data, bot_instance)
+        self.pinned = False
+        self.unpinned = True
+        if pinned is True:
+            self.pinned = True
+            self.unpinned = False
+
+    def unpin(self):
+        if self.pinned:
+            self.bot_instance.pinMessage(self.chat_id, self.message_id)
+            self.pinned = False
+            self.unpinned = True
+            return
+        raise AlreadyPinnedError
+
+    def pin(self):
+        if self.unpinned:
+            self.bot_instance.unpinMessage(self.chat_id, self.message_id)
+            self.pinned = True
+            self.unpinned = False
+        return NotPinnedError

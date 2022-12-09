@@ -39,3 +39,17 @@ class MultipleFormattingError(MessageNotSentError):
         message: str = "Cannot use a parse mode and formatting at the same time! Please pick one!",
     ):
         super().__init__(message)
+
+
+class AlreadyPinnedError(MessageNotSentError):
+    def __init__(
+        self, message: str = "The message is already pinned!"
+    ) -> None:
+        super().__init__(message)
+
+
+class NotPinnedError(MessageNotSentError):
+    def __init__(
+        self, message: str = "The message is not pinned!"
+    ) -> None:
+        super().__init__(message)

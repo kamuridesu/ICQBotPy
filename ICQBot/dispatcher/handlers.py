@@ -130,7 +130,7 @@ class DeletedMessageHandlers(MessageHandlers):
         :param `message_filters` message filters
         :param `functoin` function to be executed on match
         """
-        return self.filtersRegister.registerDeleteddMessageFilter(function)
+        return self.filtersRegister.registerDeletedMessageFilter(function)
 
     async def handle(self, message: ReceivedMessage):
         """
@@ -138,6 +138,29 @@ class DeletedMessageHandlers(MessageHandlers):
         :param `message` the received message
         """
         for func in self.filtersRegister.deleted_message_filters:
+            return await func(message)
+
+
+class PinnedMessageHandlers(MessageHandlers):
+    """
+    Handles filter registration and matches
+    """
+
+    def register(self, function: typing.Callable) -> None:
+        """
+        Register a filter to the filters registry
+
+        :param `message_filters` message filters
+        :param `functoin` function to be executed on match
+        """
+        return self.filtersRegister.registerPinnedMessageFilter(function)
+
+    async def handle(self, message: ReceivedMessage):
+        """
+        Handles a `ReceivedMessage` event and if it matches a filter, it executes the assigned function
+        :param `message` the received message
+        """
+        for func in self.filtersRegister.pinned_message_filters:
             return await func(message)
 
 

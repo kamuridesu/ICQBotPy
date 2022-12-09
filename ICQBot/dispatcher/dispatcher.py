@@ -5,11 +5,12 @@ import asyncio
 from ..ICQBot import ICQBot
 from ..mapper.EventsMapper import getEvents
 from ..exceptions.DispatcherErrors import AlreadyPollingError
-from ..messages.message import DeletedMessage, ReceivedMessage
+from ..messages.message import DeletedMessage, ReceivedMessage, PinnedMessage
 from ..messages.callback import Callback
 from .handlers import (
     DeletedMessageHandlers,
     EditedMessageHandlers,
+    PinnedMessageHandlers,
     MessageHandlers,
     CallbackHandlers,
 )
@@ -38,6 +39,7 @@ class Dispatcher:
         self.callbackHandlers = CallbackHandlers(self.filterRegistry)
         self.editedMessageHandlers = EditedMessageHandlers(self.filterRegistry)
         self.deletedMessageHandlers = DeletedMessageHandlers(self.filterRegistry)
+        self.pinnedMessageHandlers = PinnedMessageHandlers(self.filterRegistry)
         self.running_tasks: set[asyncio.Task] = set()
 
     async def _pollingHandler(self, response: dict[typing.Any, typing.Any]):
@@ -54,6 +56,10 @@ class Dispatcher:
         if last_event_type == "deletedMessage":
             dm = DeletedMessage(response["events"][-1]["payload"])
             return await asyncio.gather(self.deletedMessageHandlers.handle(dm))
+        if last_event_type in ["pinnedMessage", "unpinnedMessage"]:
+            pinned = True if last_event_type == "pinnedMessage" else False
+            pm = PinnedMessage(response["events"][-1]["payload"], self._bot_instance, pinned)
+            return await asyncio.gather(self.pinnedMessageHandlers.handle(pm))
 
     async def start_polling(self, pool_time: int = 20) -> None:
         """
@@ -151,6 +157,29 @@ class Dispatcher:
 
         def decorator(function: typing.Callable):
             self.editedMessageHandlers.register(commands, function)
+            return function
+
+        return decorator
+
+    def pinned_message_handler(self):
+        """
+        Decorator for message handler
+
+        Examples:
+
+        Simple callback handler:
+
+            @dp.pinned_message_handler(commands=['start', 'welcome', 'about'])
+
+            def cmd_handler(message: ReceivedMessage):
+
+
+        :param `commands`: list of commands
+        :return: decorated function
+        """
+
+        def decorator(function: typing.Callable):
+            self.pinnedMessageHandlers.register(function)
             return function
 
         return decorator
