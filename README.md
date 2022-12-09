@@ -76,4 +76,4 @@ endpoints asap. The current implementations are:
 
 ## Notes
 
-There's a known bug on aiohttp on windows that closes the event loop. I'm trying to fix this rn.
+There's a lot of bugs and things that I have yet to fix. As I do not have the time and expertise to fix it all at once, I'm slowly adding features and seeing what's wrong and doing what I can to make this framework fast, beautiful and easy to use.
