@@ -6,7 +6,7 @@
 #
 aiohttp==3.9.0
     # via ICQBotPy (pyproject.toml)
-aiosignal==1.2.0
+aiosignal==1.3.1
     # via aiohttp
 async-timeout==4.0.2
     # via aiohttp
